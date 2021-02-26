@@ -14,4 +14,4 @@ async def on_ready():
     await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.playing, name=f"my carrot flute"))
 
 
-client.run("NjkxMTI3MTY3ODE1NTE2MjYw.XnbcVQ.0HwwFdI21HhNZlhKdzcEmyypQyo")
+client.run("")
