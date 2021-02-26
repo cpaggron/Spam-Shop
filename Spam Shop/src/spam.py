@@ -1341,4 +1341,4 @@ async def profile(ctx, *, person: discord.Member=None):
         embed.set_thumbnail(url=pfp)
         await ctx.send(embed=embed)
 
-client.run('NzIwODU2NjUwNTgzMzc1ODcz.XxfEFw.lIlq2EQW3JBtjfn0Uy8i9_V9u4I')
+client.run('')
