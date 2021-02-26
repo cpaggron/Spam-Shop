@@ -148,4 +148,4 @@ async def on_command_error(ctx, error):
     else:
         raise error
 
-client.run('NzIwODU2NjUwNTgzMzc1ODcz.XxfEFw.lIlq2EQW3JBtjfn0Uy8i9_V9u4I')
+client.run('')
