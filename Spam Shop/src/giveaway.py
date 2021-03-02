@@ -35,6 +35,27 @@ if os.path.exists('giveAmount.json'):
 else:
     giveAmount = {}
 
+@client.command()
+@commands.cooldown(1, 86400, commands.BucketType.user)
+async def daily(ctx):
+    if ctx.guild.id == 733392111130640446:
+        pass
+    else:
+        async with ctx.typing():
+            pass
+        if os.path.exists('bal.json'):
+            with open('bal.json', 'r') as file:
+                bal = json.load(file)
+        else:
+            bal = {}
+        await ctx.send(f'{ctx.author.mention} You got 1000 <:Spambux:812017408260702248>!')
+        user = str(ctx.author.id)
+        if user in bal:
+            bal[user] += 1000
+        else:
+            bal[user] = 1000
+        with open('bal.json', 'w+') as i:
+            json.dump(bal, i)
 
 @client.command()
 async def add(ctx, amount: int):
@@ -67,6 +88,7 @@ async def help(ctx):
     embed.add_field(name="Gift [@user]", value="To gift a user Spambux", inline=False)
     embed.add_field(name="Add [amount]", value="To add Spambux to your server's budget", inline=False)
     embed.add_field(name="Budget", value="To view your server's budget. (If no one wins a giveaway the money won't be subtracted", inline=False)
+    embed.add_field(name="How this bot works", value="Your server has a budget for giveaways. Anyone can add to the server's budget but only administrators can organize giveaways. If no one wins a giveaway, the money isn't subtracted from the budget.", inline=False)
     embed.add_field(name="You can use the following links to spend your Spambux", value="[Spam Shop Server](https://discord.gg/AkYyFy5)", inline=False)
     await ctx.send(embed=embed)
 
