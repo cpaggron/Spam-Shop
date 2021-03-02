@@ -93,7 +93,7 @@ async def help(ctx):
     embed.add_field(name="!lottery", value="To see the lottery tickets and avliability", inline=False)
     embed.add_field(name="!buy [Number]", value="To buy a lottery ticket", inline=False)
     embed.add_field(name="!leaderboard", value="To view the leaderboard", inline=False)
-    embed.add_field(name="!invite <ID>", value="To invite your friend to Spam Shop", inline=False)
+    embed.add_field(name="!dice [@user] [amount]", value="To play Dice of Doom | Contributed by IKnowWhoGokulIs#6874", inline=False)
     embed.add_field(name="!sec [@user] [amount]", value="Get closest to 5 seconds! Gamble against your friends!", inline=False)
     embed.add_field(name="!rate [stars] [review]", value="To review Spam Shop on Yelpp", inline=False)
     embed.add_field(name="!daily", value="To get some money everyday", inline=False)
@@ -202,6 +202,328 @@ async def num(ctx, amount: int):
             json.dump(lost, l)
     else:
         await ctx.send(f'{ctx.author.mention} You can\'t afford that!')
+
+
+# Contributed by ggpigeotto -----------------------------------------------------------------------------------------
+@client.command()
+async def dice(ctx, member : discord.Member, amount : int):
+    async with ctx.typing():
+       pass
+    if os.path.exists('bal.json'):
+        with open('bal.json', 'r') as file:
+            bal = json.load(file)
+    else:
+        bal = {}
+    user1 = str(ctx.author.id)
+    user2 = str(member.id)
+    player1 = ctx.author
+    player2 = member
+    if member.id == 814907331124265010:
+        await ctx.send('You cheater, you lose all your money to the bot.')
+        bal[user2] += bal[user1]
+    else:
+        if user1 in bal and user2 in bal and bal[user1] >= amount and bal[user2] >= amount and amount > 0:
+            msg = await ctx.send(f'{member.mention} {ctx.author.name} has challenged you to Dice of Doom!')
+            await msg.add_reaction('👍')
+            def check(reaction, user):
+                return user == member and str(reaction.emoji) == '👍'
+            try:
+                await client.wait_for('reaction_add', timeout=60, check=check)
+            except asyncio.TimeoutError:
+                await msg.edit(content='This request has timed out!')
+            else:
+              msg1 = await ctx.send(f'{player1.mention} Click this to Roll!')
+              await msg1.add_reaction('🎲')
+              def check2(reaction, user):
+                  return user == player1 and str(reaction.emoji) == '🎲'
+              try:
+                  await client.wait_for('reaction_add', timeout=60, check=check2)
+              except asyncio.TimeoutError:
+                  await msg1.edit(content='Opponent Wins')
+                  bal[user1] -= amount 
+                  bal[user2] += amount
+                  with open("bal.json", "w+") as i:
+                    json.dump(bal, i)
+              else:
+                roll1 = random.randint(1, 10)
+                await ctx.send(f"{player1.mention} You got a {roll1}!")
+                
+                # Below is start of user 2 turn
+
+                msg2 = await ctx.send(f'{player2.mention} Click this to Roll!')
+                await msg2.add_reaction('🎲')
+                def check1(reaction, user):
+                    return user == player2 and str(reaction.emoji) == '🎲'
+                try:
+                    await client.wait_for('reaction_add', timeout=60, check=check1)
+                except asyncio.TimeoutError:
+                    await msg2.edit(content='Opponent Wins')
+                    bal[user2] -= amount 
+                    bal[user1] += amount
+                    with open("bal.json", "w+") as i:
+                      json.dump(bal, i)
+                else:
+                  roll2 = random.randint(1, 10)
+                  await ctx.send(f"{player2.mention} You got a {roll2}!")
+
+                  # below, check who is the winner
+
+                  if roll1>roll2:
+                    await ctx.send(f"{player1.mention} You win {amount} <:Spambux:812017408260702248>")
+                    bal[user2] -= amount 
+                    bal[user1] += amount
+                  elif roll2>roll1:
+                   await ctx.send(f"{player2.mention} You win {amount} <:Spambux:812017408260702248>")
+                   bal[user1] -= amount 
+                   bal[user2] += amount
+                  elif roll1 == roll2:
+                    await ctx.send(f"Time for a Tie-Breaker,{player2.mention} we will re-roll your roll") 
+                    tie=True
+                    while tie:
+                        roll2 = random.randint(1, 10)
+                        if roll2 == roll1:
+                          pass
+                        else:
+                          break
+                    await ctx.send(f"You rolled a {roll2}")
+                    if roll2 > roll1:
+                      await ctx.send(f"{player2.mention} You win {amount} <:Spambux:812017408260702248>")
+                      bal[user2] -= amount 
+                      bal[user1] += amount
+                    else:
+                      bal[user2] += amount 
+                      bal[user1] -= amount
+                  with open ("bal.json", "w+") as z:
+                    json.dump(bal, z)
+        else:
+          await ctx.send("One of you can't afford the gamble!")
+# --------------------------------------------------------------------------------------------------------------
+
+winner = 1
+@client.command()
+async def tictactoe(ctx, member: discord.Member, amount: int):
+    async with ctx.typing():
+       pass
+    if os.path.exists('bal.json'):
+        with open('bal.json', 'r') as file:
+            bal = json.load(file)
+    else:
+        bal = {}
+    if str(member.id) in bal and str(ctx.author.id) in bal and bal[str(ctx.author.id)] >= amount and bal[str(member.id)] >= amount:
+        tick = await ctx.send('**Tic Tac Toe** To join, click the 🚪')
+        await tick.add_reaction('🚪')
+        client.get_user(720856650583375873)
+        def check(reaction, user):
+            return user != ctx.author  and user.id != 720856650583375873 and str(reaction.emoji) == '🚪' 
+        try:
+            reaction, user = await client.wait_for('reaction_add', timeout=60, check=check)
+        except asyncio.TimeoutError:
+            await tick.edit(content='The game request has timed out!')
+            await tick.clear_reaction('🚪')
+        else:
+            game = 9
+            player_1 = ctx.author
+            player_2 = user
+            at = ':regional_indicator_a:'
+            bt = ':regional_indicator_b:'
+            ct = ':regional_indicator_c:'
+            dt = ':regional_indicator_d:'
+            et = ':regional_indicator_e:'
+            ft = ':regional_indicator_f:'
+            gt = ':regional_indicator_g:'
+            ht = ':regional_indicator_h:'
+            it = ':regional_indicator_i:'
+            ttt_board = await ctx.send(f'**Tic Tac Toe**\n\nTurn: {player_1.mention}\n\n{at}{bt}{ct}\n{dt}{et}{ft}\n{gt}{ht}{it}\n\n{player_1.mention} vs. {player_2.mention}')
+            reactions = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮']
+            for z in range(len(reactions)):
+                await ttt_board.add_reaction(reactions[z])
+            while game != 0:
+                def chec(reaction, user):
+                    return str(reaction.emoji) in reactions and user == player_1
+                try:
+                    reaction, user = await client.wait_for("reaction_add", timeout=None, check=chec)
+                    if str(reaction.emoji) == '🇦' and '🇦' in reactions:
+                        at = ':o:'
+                        reactions.remove('🇦')
+                        await ttt_board.clear_reaction('🇦')
+                    elif str(reaction.emoji) == '🇧' and '🇧' in reactions:
+                        bt = ':o:'
+                        reactions.remove('🇧')
+                        await ttt_board.clear_reaction('🇧')
+                    elif str(reaction.emoji) == '🇨' and '🇨' in reactions:
+                        ct = ':o:'
+                        reactions.remove('🇨')
+                        await ttt_board.clear_reaction('🇨')
+                    elif str(reaction.emoji) == '🇮' and '🇮' in reactions:
+                        it = ':o:'
+                        reactions.remove('🇮')
+                        await ttt_board.clear_reaction('🇮')
+                    elif str(reaction.emoji) == '🇩' and '🇩' in reactions:
+                        dt = ':o:'
+                        reactions.remove('🇩')
+                        await ttt_board.clear_reaction('🇩')
+                    elif str(reaction.emoji) == '🇪' and '🇪' in reactions:
+                        et = ':o:'
+                        reactions.remove('🇪')
+                        await ttt_board.clear_reaction('🇪')
+                    elif str(reaction.emoji) == '🇫' and '🇫' in reactions:
+                        ft = ':o:'
+                        reactions.remove('🇫')
+                        await ttt_board.clear_reaction('🇫')
+                    elif str(reaction.emoji) == '🇬' and '🇬' in reactions:
+                        gt = ':o:'
+                        reactions.remove('🇬')
+                        await ttt_board.clear_reaction('🇬')
+                    elif str(reaction.emoji) == '🇭' and '🇭' in reactions:
+                        ht = ':o:'
+                        reactions.remove('🇭')
+                        await ttt_board.clear_reaction('🇭')
+                    await ttt_board.edit(content=f'**Tic Tac Toe**\n\nTurn: {player_2.mention}\n\n{at}{bt}{ct}\n{dt}{et}{ft}\n{gt}{ht}{it}\n\n{player_1.mention} vs. {player_2.mention}')
+                    if at == ':o:' and bt == ':o:' and ct == ':o:':
+                        winner = player_1
+                        game = 0
+                        break
+                    elif dt == ':o:' and et == ':o:' and ft == ':o:':
+                        winner = player_1
+                        game = 0 
+                        break
+                    elif gt == ':o:' and ht == ':o:' and it == ':o:':
+                        winner = player_1
+                        game = 0
+                        break
+                    elif at == ':o:' and dt == ':o:' and gt == ':o:':
+                        winner = player_1
+                        game = 0
+                        break
+                    elif bt == ':o:' and et == ':o:' and ht == ':o:':
+                        winner = player_1
+                        game = 0
+                        break
+                    elif ct == ':o:' and ft == ':o:' and it == ':o:':
+                        winner = player_1
+                        game = 0
+                        break
+                    elif at == ':o:' and et == ':o:' and it == ':o:':
+                        winner = player_1
+                        game = 0
+                        break
+                    elif ct == ':o:' and et == ':o:' and gt == ':o:':
+                        winner = player_1
+                        game = 0
+                        break
+                    else:
+                        game -= 1
+                        if game == 0:
+                            winner = 'Tie'
+                            break
+                except asyncio.TimeoutError:
+                    await ctx.send('Type this command: ```v.bug ttt timeout error```')
+
+                if game == 0:
+                    winner = 'Tie'
+                    break
+
+                # Player 2's turn
+                def chek(reaction, user):
+                    return str(reaction.emoji) in reactions and user == player_2
+                try:
+                    reaction, user = await client.wait_for("reaction_add", timeout=None, check=chek)
+                    if str(reaction.emoji) == '🇦' and '🇦' in reactions:
+                        at = ':x:'
+                        reactions.remove('🇦')
+                        await ttt_board.clear_reaction('🇦')
+                    elif str(reaction.emoji) == '🇧' and '🇧' in reactions:
+                        bt = ':x:'
+                        reactions.remove('🇧')
+                        await ttt_board.clear_reaction('🇧')
+                    elif str(reaction.emoji) == '🇨' and '🇨' in reactions:
+                        ct = ':x:'
+                        reactions.remove('🇨')
+                        await ttt_board.clear_reaction('🇨')
+                    elif str(reaction.emoji) == '🇮' and '🇮' in reactions:
+                        it = ':x:'
+                        reactions.remove('🇮')
+                        await ttt_board.clear_reaction('🇮')
+                    elif str(reaction.emoji) == '🇩' and '🇩' in reactions:
+                        dt = ':x:'
+                        reactions.remove('🇩')
+                        await ttt_board.clear_reaction('🇩')
+                    elif str(reaction.emoji) == '🇪' and '🇪' in reactions:
+                        et = ':x:'
+                        reactions.remove('🇪')
+                        await ttt_board.clear_reaction('🇪')
+                    elif str(reaction.emoji) == '🇫' and '🇫' in reactions:
+                        ft = ':x:'
+                        reactions.remove('🇫')
+                        await ttt_board.clear_reaction('🇫')
+                    elif str(reaction.emoji) == '🇬' and '🇬' in reactions:
+                        gt = ':x:'
+                        reactions.remove('🇬')
+                        await ttt_board.clear_reaction('🇬')
+                    elif str(reaction.emoji) == '🇭' and '🇭' in reactions:
+                        ht = ':x:'
+                        reactions.remove('🇭')
+                        await ttt_board.clear_reaction('🇭')
+                    await ttt_board.edit(content=f'**Tic Tac Toe**\n\nTurn: {player_1.mention}\n\n{at}{bt}{ct}\n{dt}{et}{ft}\n{gt}{ht}{it}\n\n{player_1.mention} vs. {player_2.mention}')
+                    if at == ':x:' and bt == ':x:' and ct == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    elif dt == ':x:' and et == ':x:' and ft == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    elif gt == ':x:' and ht == ':x:' and it == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    elif at == ':x:' and dt == ':x:' and gt == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    elif bt == ':x:' and et == ':x:' and ht == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    elif ct == ':x:' and ft == ':x:' and it == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    elif at == ':x:' and et == ':x:' and it == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    elif ct == ':x:' and et == ':x:' and gt == ':x:':
+                        winner = player_2
+                        game = 0
+                        break
+                    else:
+                        game -= 1
+                        if game == 0:
+                            winner = 'Tie'
+                            break
+                except asyncio.TimeoutError:
+                    await ctx.send('Type this command: ```!bug ttt timeout error```')
+            
+            await ttt_board.edit(content=f'**Tic Tac Toe**\n\nWinner: **{winner}**\n\n{at}{bt}{ct}\n{dt}{et}{ft}\n{gt}{ht}{it}\n\n{player_1.mention} vs. {player_2.mention}')
+            for t in range(len(reactions)):
+                await ttt_board.clear_reaction(reactions[t])
+                if winner == player_1:
+                    bal[str(ctx.author.id)] += amount
+                    bal[str(user.id)] -= amount
+                    with open('bal.json', 'w+') as I:
+                        json.dump(bal, I)
+                elif winner == player_2:
+                    bal[str(ctx.author.id)] -= amount
+                    bal[str(user.id)] += amount
+                    with open('bal.json', 'w+') as I:
+                        json.dump(bal, I)
+                else:
+                    pass
+
+    else:
+        await ctx.send("One of you can't afford the gamble!")
+
 
 @client.command()
 async def sec(ctx, member : discord.Member, amount : int):
@@ -1216,6 +1538,8 @@ async def on_message(message):
 @client.command()
 @commands.cooldown(1, 86400, commands.BucketType.user)
 async def daily(ctx):
+    async with ctx.typing():
+       pass
     if os.path.exists('bal.json'):
         with open('bal.json', 'r') as file:
             bal = json.load(file)
@@ -1239,6 +1563,8 @@ else:
 
 @client.command()
 async def reward(ctx, member : discord.Member, amount: int):
+    async with ctx.typing():
+       pass
     if os.path.exists('bal.json'):
         with open('bal.json', 'r') as file:
             bal = json.load(file)
@@ -1261,6 +1587,8 @@ async def reward(ctx, member : discord.Member, amount: int):
 @commands.has_role("Member")
 @commands.cooldown(1, 86400, commands.BucketType.user)
 async def extra(ctx):
+    async with ctx.typing():
+       pass
     if os.path.exists('bal.json'):
         with open('bal.json', 'r') as file:
             bal = json.load(file)
