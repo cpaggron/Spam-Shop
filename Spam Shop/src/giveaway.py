@@ -83,7 +83,8 @@ async def add(ctx, amount: int):
 @client.command()
 async def help(ctx):
     embed = discord.Embed(title="Help", description="Here are the list of commands. Command prefix: `s!`", color=discord.Color.gold())
-    embed.add_field(name="Giveaway", value="To organize a giveaway", inline=False)
+    embed.add_field(name="Giveaway [amount] [time (mins)]", value="To organize a giveaway", inline=False)
+    embed.add_field(name="Daily", value="To get Spambux everyday (Does not work in the support server)", inline=False)
     embed.add_field(name="Balance", value="To see your balance", inline=False)
     embed.add_field(name="Gift [@user]", value="To gift a user Spambux", inline=False)
     embed.add_field(name="Add [amount]", value="To add Spambux to your server's budget", inline=False)
@@ -95,6 +96,7 @@ async def help(ctx):
 @client.command()
 @commands.has_role("Employee")
 async def give(ctx, amount: int, time: int):
+    await ctx.channel.purge(limit=1)
     if os.path.exists('bal.json'):
         with open('bal.json', 'r') as file:
             bal = json.load(file)
@@ -142,6 +144,7 @@ async def give(ctx, amount: int, time: int):
 @client.command(aliases=['g'])
 @commands.has_permissions(administrator=True)
 async def giveaway(ctx, amount: int, time: int):
+    await ctx.channel.purge(limit=1)
     if os.path.exists('badge.json'):
         with open('badge.json', 'r') as file:
             badge = json.load(file)
