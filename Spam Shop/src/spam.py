@@ -1114,76 +1114,77 @@ async def on_message(message):
     else:
         bal = {}
     send = message.channel.send
+    if message.guild.id == 733392111130640446:
 
-    if 'https://discord.gg/' in message.content.lower() or 'join my server' in message.content.lower():
-        if message.author.id == 468476776104853505:
-            pass
-        else:
-            await message.channel.purge(limit=1)
-            user = await client.fetch_user(468476776104853505)
-            await user.send(f'{message.author} has advertised')
-            await send('Restricted Message')
-    
-    user = str(message.author.id)
-    if message.author.id != 720856650583375873 and user in level and 'xp' in level[user] and 'final_xp' in level[user] and 'level' in level[user]:
-        level[user]["xp"] += random.choice([0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3])
-        with open("level.json", "w+") as I:
-            json.dump(level, I)
-        if level[user]['xp'] >= level[user]["final_xp"]:
-            level[user]['xp'] -= level[user]['final_xp']
-            level[user]['level'] += 1
-            level[user]['final_xp'] *= 2 
+        if 'https://discord.gg/' in message.content.lower() or 'join my server' in message.content.lower():
+            if message.author.id == 468476776104853505:
+                pass
+            else:
+                await message.channel.purge(limit=1)
+                user = await client.fetch_user(468476776104853505)
+                await user.send(f'{message.author} has advertised')
+                await send('Restricted Message')
+        
+        user = str(message.author.id)
+        if message.author.id != 720856650583375873 and user in level and 'xp' in level[user] and 'final_xp' in level[user] and 'level' in level[user]:
+            level[user]["xp"] += random.choice([0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3])
             with open("level.json", "w+") as I:
                 json.dump(level, I)
-            if level[user]['level'] % 10 == 0:
-                await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}! You get {level[user]['level']*500} <:Spambux:812017408260702248>!")
-                userr = message.author
-                role = get(message.guild.roles, name=f"Level {level[user]['level']}")
-                await userr.add_roles(role)
-                if os.path.exists('bal.json'):
-                    with open('bal.json', 'r') as file:
-                        bal = json.load(file)
+            if level[user]['xp'] >= level[user]["final_xp"]:
+                level[user]['xp'] -= level[user]['final_xp']
+                level[user]['level'] += 1
+                level[user]['final_xp'] *= 2 
+                with open("level.json", "w+") as I:
+                    json.dump(level, I)
+                if level[user]['level'] % 10 == 0:
+                    await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}! You get {level[user]['level']*500} <:Spambux:812017408260702248>!")
+                    userr = message.author
+                    role = get(message.guild.roles, name=f"Level {level[user]['level']}")
+                    await userr.add_roles(role)
+                    if os.path.exists('bal.json'):
+                        with open('bal.json', 'r') as file:
+                            bal = json.load(file)
+                    else:
+                        bal = {}
+                    if user in bal:
+                        bal[user] += level[user]['level'] * 200
+                    else:
+                        bal[user] = level[user]['level'] * 200
+                    with open('bal.json', 'w+') as u:
+                        json.dump(bal, u)
                 else:
-                    bal = {}
-                if user in bal:
-                    bal[user] += level[user]['level'] * 200
-                else:
-                    bal[user] = level[user]['level'] * 200
-                with open('bal.json', 'w+') as u:
-                    json.dump(bal, u)
+                    await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}!")
             else:
-                await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}!")
+                pass
         else:
-            pass
-    else:
-        level[user] = {}
-        level[user]['final_xp'] = 10
-        level[user]['xp'] = 0
-        level[user]['level'] = 1
-        with open('level.json', 'w+') as op:
-            json.dump(level, op)
-    
+            level[user] = {}
+            level[user]['final_xp'] = 10
+            level[user]['xp'] = 0
+            level[user]['level'] = 1
+            with open('level.json', 'w+') as op:
+                json.dump(level, op)
+        
 
-        cc = random.randint(1, 20)
-        if cc == 5:
-            nmn = random.randint(1, 20)
-            await message.channel.send(f'**{nmn} <:Spambux:812017408260702248>** have been found! Type "claim" to claim it!')
-            coinog = True
-            while coinog:
-                def check(m):
-                    return m.content == "claim" and m.channel == message.channel
-                coinpc = await client.wait_for('message', check=check)
-                await message.channel.send(f'{coinpc.author.mention} You got {nmn} <:Spambux:812017408260702248>!')
-                coinog = False
-                break
-            
-            user = str(coinpc.author.id)
-            if user in bal:
-                bal[user] += nmn
-            else:
-                bal[user] = nmn
-            with open('bal.json', 'w+') as i:
-                json.dump(bal, i)
+            cc = random.randint(1, 20)
+            if cc == 5:
+                nmn = random.randint(1, 20)
+                await message.channel.send(f'**{nmn} <:Spambux:812017408260702248>** have been found! Type "claim" to claim it!')
+                coinog = True
+                while coinog:
+                    def check(m):
+                        return m.content == "claim" and m.channel == message.channel
+                    coinpc = await client.wait_for('message', check=check)
+                    await message.channel.send(f'{coinpc.author.mention} You got {nmn} <:Spambux:812017408260702248>!')
+                    coinog = False
+                    break
+                
+                user = str(coinpc.author.id)
+                if user in bal:
+                    bal[user] += nmn
+                else:
+                    bal[user] = nmn
+                with open('bal.json', 'w+') as i:
+                    json.dump(bal, i)
 
 
 # Clear Messages
