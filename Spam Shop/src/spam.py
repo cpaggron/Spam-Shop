@@ -22,7 +22,7 @@ client.remove_command('help')
 @client.event
 async def on_ready():
     print('Bot is ready')
-    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v2.1.2"))
+    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v3.0.0"))
 
 if os.path.exists('pop.json'):
     with open('pop.json', 'r') as file:
@@ -42,10 +42,6 @@ async def on_member_join(member):
 @client.event
 async def on_member_remove(member):
     pass
-@client.command()
-async def to(ctx):
-    await ctx.channel.purge(limit=1)
-    await ctx.send("```Members: 30\nBots: 2```")
 
 
 if os.path.exists('badge.json'):
@@ -98,6 +94,11 @@ async def help(ctx):
     embed.add_field(name="!rate [stars] [review]", value="To review Spam Shop on Yelpp", inline=False)
     embed.add_field(name="!daily", value="To get some money everyday", inline=False)
     embed.add_field(name="!extra", value="An extra daily command for members only", inline=False)
+    embed.add_field(name="!dice", value="To play Dice of Doom against another player.", inline=False)
+    embed.add_field(name="!rank", value="To check your level.", inline=False)
+    embed.add_field(name="!event", value="To subscribe to event pings", inline=False)
+    embed.add_field(name="!unevent", value="To unsubscribe to event pings", inline=False)
+    embed.add_field(name="!tictactoe [user] [amount]", value="To play tic tac toe against another user", inline=False)
     embed.add_field(name="!num [number]", value="To guess a number from 1 - 1000. Costs 5 <:Spambux:812017408260702248>. Can win 10000 <:Spambux:812017408260702248>.", inline=False)
     embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
     await ctx.send(embed=embed)
@@ -144,6 +145,25 @@ async def unsub(ctx):
     await user.remove_roles(role)
     await ctx.send(f'{ctx.author.mention} You have unsubscribed for announcement pings.')
     
+@client.command()
+async def event(ctx):
+    async with ctx.typing():
+       pass
+    user = ctx.author
+    role = get(user.guild.roles, name="Events")
+    await user.add_roles(role)
+    await ctx.send(f'{ctx.author.mention} You have subscribed for giveaway pings.')
+
+@client.command()
+async def unevent(ctx):
+    async with ctx.typing():
+       pass
+    user = ctx.author
+    role = get(user.guild.roles, name="Events")
+    await user.remove_roles(role)
+    await ctx.send(f'{ctx.author.mention} You have unsubscribed for giveaway pings.')
+
+
 if os.path.exists('bal.json'):
    with open('bal.json', 'r') as file:
        bal = json.load(file)
@@ -314,7 +334,7 @@ async def tictactoe(ctx, member: discord.Member, amount: int):
         await tick.add_reaction('🚪')
         client.get_user(720856650583375873)
         def check(reaction, user):
-            return user != ctx.author  and user.id != 720856650583375873 and str(reaction.emoji) == '🚪' 
+            return user == member and str(reaction.emoji) == '🚪' 
         try:
             reaction, user = await client.wait_for('reaction_add', timeout=60, check=check)
         except asyncio.TimeoutError:
@@ -959,7 +979,7 @@ async def lottery(ctx):
         embed.add_field(name='`2` 20 <:Spambux:812017408260702248>', value=f'4% chance of winning per ticket. {ticket["lticket"]} more tickets avaliable. Prize is 500 <:Spambux:812017408260702248>.', inline=False)
         embed.add_field(name="`3` 50 <:Spambux:812017408260702248>", value=f"2% chance of winning per ticket. {ticket['rticket']} more tickets avaliable. Prize is 750 <:Spambux:812017408260702248>.", inline=False)
         embed.add_field(name="`4` 100 <:Spambux:812017408260702248>", value=f"0.5% chance of winning per ticket. {ticket['dticket']} more tickets avaliable. Prize is 1,500 <:Spambux:812017408260702248>.", inline=False)
-        embed.add_field(name="`5` 500 <:Spambux:812017408260702248>", value=f"0.1% chance of winning per ticket. {ticket['tticket']} more tickets avaliable. Prize is 100,000 <:Spambux:812017408260702248>.", inline=False)
+        embed.add_field(name="`5` 500 <:Spambux:812017408260702248>", value=f"0.1% chance of winning per ticket. {ticket['tticket']} more tickets avaliable. Prize is 75,000 <:Spambux:812017408260702248>.", inline=False)
         await ctx.send(embed=embed)
 
 if os.path.exists('leader.json'):
@@ -989,7 +1009,6 @@ async def leaderboard(ctx):
         x = {k: v for k, v in sorted(leader.items(), key=lambda leader: leader[1], reverse=True)}
         q = ''    
         z = 1
-        zaza = 0
         for a in x:
             aa = await client.fetch_user(int(a))
             q += f'__{aa.name}__: {x[a]} <:Spambux:812017408260702248>\n'
@@ -1004,7 +1023,169 @@ async def leaderboard(ctx):
             embed.add_field(name="You have spent:", value=str(leader[user]) +" <:Spambux:812017408260702248>", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await ctx.send(embed=embed)
+
+
+
+if os.path.exists('level.json'):
+    with open('level.json', 'r') as file:
+        level = json.load(file)
+else:
+    level = {} 
+
+@client.command()
+async def rank(ctx, *, member: discord.Member=None):
+    if member is None:
+        user = str(ctx.author.id)
+        if user in level and 'xp' in level[user] and 'final_xp' in level[user] and 'level' in level[user]:
+            xp = level[user]['xp']
+            final_xp = level[user]['final_xp']
+            fract = xp/final_xp
+            progress = round(fract * 10)
+            if progress >= 1:
+                progressBar = '<:CompleteBlockBeginning:816753157198577744>'
+            else:
+                progressBar = '<:IncompleteBlockBeginning:816779212131794995>'
+            incomplete = 9
+            for i in range(0, progress-1):
+                progressBar += '<:CompleteBlockMiddle:816753798306857002>'
+                incomplete -= 1
+            for I in range(0, incomplete-1):
+                progressBar += '<:IncompleteBlockMiddle:816753597269803018>'
+            if progress == 10:
+                progressBar += '<:CompleteBlockEnding:816753157191368704>'
+            else: 
+                progressBar += '<:IncompleteBlockEnding:816753157039718463>'
+            embed = discord.Embed(title=f"Level {(level[user]['level'])}", description=f"{xp}/{final_xp} xp\n{progressBar}", color=discord.Color.blue())
+            embed.set_footer(text=str(ctx.author))
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(title="Level 1", description="0/10 xp\n<:IncompleteBlockBeginning:816779212131794995><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockEnding:816753157039718463>", color=discord.Color.blue())
+            embed.set_footer(text=str(ctx.author))
+            await ctx.send(embed=embed)
+            level[user] = {}
+            level[user]['xp'] = 0
+            level[user]['final_xp'] = 10
+            level[user]['level'] = 1
+            with open('level.json', 'w+') as po:
+                json.dump(level, po)
+    else:
+        user = str(member.id)
+        if user in level and 'xp' in level[user] and 'final_xp' in level[user] and 'level' in level[user]:
+            xp = level[user]['xp']
+            final_xp = level[user]['final_xp']
+            fract = xp/final_xp
+            progress = round(fract * 10)
+            if progress >= 1:
+                progressBar = '<:CompleteBlockBeginning:816753157198577744>'
+            else:
+                progressBar = '<:IncompleteBlockBeginning:816779212131794995>'
+            incomplete = 9
+            for i in range(0, progress-1):
+                progressBar += '<:CompleteBlockMiddle:816753798306857002>'
+                incomplete -= 1
+            for I in range(0, incomplete-1):
+                progressBar += '<:IncompleteBlockMiddle:816753597269803018>'
+            if progress == 10:
+                progressBar += '<:CompleteBlockEnding:816753157191368704>'
+            else: 
+                progressBar += '<:IncompleteBlockEnding:816753157039718463>'
+            embed = discord.Embed(title=f"Level {(level[user]['level'])}", description=f"{xp}/{final_xp} xp\n{progressBar}", color=discord.Color.blue())
+            embed.set_footer(text=str(member))
+            await ctx.send(embed=embed)
+        else:
+            embed = discord.Embed(title="Level 1", description="0/10 xp\n<:IncompleteBlockBeginning:816779212131794995><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockMiddle:816753597269803018><:IncompleteBlockEnding:816753157039718463>", color=discord.Color.blue())
+            embed.set_footer(text=str(member))
+            await ctx.send(embed=embed)
+            level[user] = {}
+            level[user]['xp'] = 0
+            level[user]['final_xp'] = 10
+            level[user]['level'] = 1
+            with open('level.json', 'w+') as po:
+                json.dump(level, po)
+
+
+# Tax
+@client.event
+async def on_message(message):
+    await client.process_commands(message)
+    if os.path.exists('bal.json'):
+        with open('bal.json', 'r') as file:
+            bal = json.load(file)
+    else:
+        bal = {}
+    send = message.channel.send
+
+    if 'https://discord.gg/' in message.content.lower() or 'join my server' in message.content.lower():
+        if message.author.id == 468476776104853505:
+            pass
+        else:
+            await message.channel.purge(limit=1)
+            user = await client.fetch_user(468476776104853505)
+            await user.send(f'{message.author} has advertised')
+            await send('Restricted Message')
     
+    user = str(message.author.id)
+    if message.author.id != 720856650583375873 and user in level and 'xp' in level[user] and 'final_xp' in level[user] and 'level' in level[user]:
+        level[user]["xp"] += random.choice([0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3])
+        with open("level.json", "w+") as I:
+            json.dump(level, I)
+        if level[user]['xp'] >= level[user]["final_xp"]:
+            level[user]['xp'] -= level[user]['final_xp']
+            level[user]['level'] += 1
+            level[user]['final_xp'] *= 2 
+            with open("level.json", "w+") as I:
+                json.dump(level, I)
+            if level[user]['level'] % 10 == 0:
+                await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}! You get {level[user]['level']*500} <:Spambux:812017408260702248>!")
+                userr = message.author
+                role = get(message.guild.roles, name=f"Level {level[user]['level']}")
+                await userr.add_roles(role)
+                if os.path.exists('bal.json'):
+                    with open('bal.json', 'r') as file:
+                        bal = json.load(file)
+                else:
+                    bal = {}
+                if user in bal:
+                    bal[user] += level[user]['level'] * 200
+                else:
+                    bal[user] = level[user]['level'] * 200
+                with open('bal.json', 'w+') as u:
+                    json.dump(bal, u)
+            else:
+                await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}!")
+        else:
+            pass
+    else:
+        level[user] = {}
+        level[user]['final_xp'] = 10
+        level[user]['xp'] = 0
+        level[user]['level'] = 1
+        with open('level.json', 'w+') as op:
+            json.dump(level, op)
+    
+
+        cc = random.randint(1, 20)
+        if cc == 5:
+            nmn = random.randint(1, 20)
+            await message.channel.send(f'**{nmn} <:Spambux:812017408260702248>** have been found! Type "claim" to claim it!')
+            coinog = True
+            while coinog:
+                def check(m):
+                    return m.content == "claim" and m.channel == message.channel
+                coinpc = await client.wait_for('message', check=check)
+                await message.channel.send(f'{coinpc.author.mention} You got {nmn} <:Spambux:812017408260702248>!')
+                coinog = False
+                break
+            
+            user = str(coinpc.author.id)
+            if user in bal:
+                bal[user] += nmn
+            else:
+                bal[user] = nmn
+            with open('bal.json', 'w+') as i:
+                json.dump(bal, i)
+
+
 # Clear Messages
 @client.command()
 @commands.has_permissions(manage_messages=True)
@@ -1133,35 +1314,35 @@ async def hotpot(ctx):
     
         
 spam_pics = ['https://images2.minutemediacdn.com/image/upload/c_crop,h_1576,w_2800,x_0,y_52/f_auto,q_auto,w_1100/v1554931909/shape/mentalfloss/20997-istock-471531747.jpg', 'https://cdn.vox-cdn.com/thumbor/UO1hhAGb7ea5G-MuC43l1Sxx9Rw=/0x0:2282x1712/1200x675/filters:focal(0x0:2282x1712)/cdn.vox-cdn.com/uploads/chorus_image/image/50821489/spam-wall.0.0.jpg', 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT1O6mvAY7DJRy5xqz4kRbfv0ji0mL2XcEneg&usqp=CAU']
-spam = Item(25, random.choice(spam_pics), 'spam')
-pizza = Item(50, 'https://www.vvsupremo.com/wp-content/uploads/2018/05/Pepperoni-Pizza-1.jpg', 'pizza')
-ramen = Item(40, 'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/190208-delish-ramen-horizontal-093-1550096715.jpg?crop=1xw:0.7496251874062968xh;center,top&resize=1200:*', 'ramen')
-chineseNoodles = Item(40, 'https://www.mamalovesfood.com/wp-content/uploads/2019/08/STIR-FRY-NOODLES-7.jpg', 'chinese noodle stirfry')
-cheeseBurger = Item(45, 'https://img.webmd.com/dtmcms/live/webmd/consumer_assets/site_images/article_thumbnails/recipes/perfect_cheeseburger_recipe/650x350_perfect_cheeseburger_recipe.jpg', 'cheeseburger')
-friedRice = Item(60, 'https://i2.wp.com/lifemadesimplebakes.com/wp-content/uploads/2018/04/Ham-Fried-Rice.jpg', 'fried rice')
-caesarSalad = Item(55, 'https://www.cookingclassy.com/wp-content/uploads/2018/06/caesar-salad-3-500x375.jpg', 'caesar salad')
-hotDog = Item(35, random.choice(['https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/8/7/0/FNM_090118-Barbecue-Hot-Dog_s4x3.jpg.rend.hgtvcom.616.462.suffix/1533665468931.jpeg', 'https://www.shoreupdate.com/wp-content/uploads/2014/09/images.gif']), 'hot dog')
-popeTart = Item(30, 'https://i.redd.it/bwhm480hlg031.png', 'pope tarts')
-fries = Item(40, 'https://www.corriecooks.com/wp-content/uploads/2018/10/Instant-Pot-French-Fries-new.jpg', 'fries')
-vanillaIC = Item(40, 'https://www.kingarthurflour.com/sites/default/files/styles/featured_image/public/recipe_legacy/4163-3-large.jpg?itok=ztpZXNRg', 'vanilla ic')
-chocolateIC = Item(40, 'https://joyfoodsunshine.com/wp-content/uploads/2020/06/homemade-chocolate-ice-cream-recipe-7.jpg', 'chocolate ic')
-mangoIC = Item(40, 'https://lovingitvegan.com/wp-content/uploads/2018/01/Vegan-Mango-Ice-Cream-8.jpg', 'mango ic')
-strawberryIC = Item(40, 'https://bakingamoment.com/wp-content/uploads/2018/06/IMG_8185-homemade-strawberry-ice-cream-square.jpg', 'strawberry ic')
-asphaltPopeTart = Item(30, 'https://cdn.discordapp.com/attachments/721501784501387264/734197839697281085/unknown.png', 'asphalt pope tarts')
-elmersPopeTart = Item(30, "https://cdn.discordapp.com/attachments/721501784501387264/734198614695608421/unknown.png", 'elmers pope tarts')          
-crustPopeTart = Item(30, 'https://cdn.discordapp.com/attachments/721501784501387264/734249647563866203/unknown.png', 'crust pope tarts')
-pistachioIC = Item(40, 'https://assets.epicurious.com/photos/5747b4a47d5155b145d8d607/2:1/w_1260%2Ch_630/shutterstock_303021722.jpg', 'pistachio ic')
-matchaIC = Item(40, 'https://www.rotinrice.com/wp-content/uploads/2011/08/MatchaIceCream-1-680x350.jpg', 'matcha ic')
-waterPopeTart = Item(30, 'https://cdn.discordapp.com/attachments/721501784501387264/734252962829959198/unknown.png', 'water pope tarts')
-spicyTofu = Item(45, "https://simpleveganblog.com/wp-content/uploads/2018/01/Korean-style-spicy-tofu-3.jpg", 'spicy tofu')
-potato = Item(43, 'https://cdn.discordapp.com/attachments/730177469768007680/768282370365063178/unknown.png', 'potato')
-floorPopeTart = Item(30, 'https://media.discordapp.net/attachments/721501784501387264/734964442646970438/unknown.png', 'floor pope tarts')
-ranchPopeTart = Item(30, 'https://cdn.discordapp.com/attachments/721501784501387264/734966826223796235/unknown.png', 'ranch pope tarts')
-spaghetti = Item(50, 'https://c.ndtvimg.com/2020-01/n7thfo2o_spaghetti_625x300_28_January_20.jpg', 'spaghetti')
-yubariMelon = Item(800, 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/03/27/12/cantaloupe-melons.jpg?width=982&height=726', 'yubari melon')
-turkey = Item(70, 'https://tastesbetterfromscratch.com/wp-content/uploads/2017/07/Easy-No-Fuss-Thanksgiving-Turkey-14.jpg', 'turkey')
-chocolateMilk = Item(30,"https://cdn.discordapp.com/attachments/721501784501387264/785637261030850630/Screen_Shot_2020-12-07_at_2.34.37_PM.png", "chocolate milk")
-latte= Item(40, "https://cdn.discordapp.com/attachments/730177469768007680/783503766850502656/unknown.png", "latte")
+spam = Item(250, random.choice(spam_pics), 'spam')
+pizza = Item(500, 'https://www.vvsupremo.com/wp-content/uploads/2018/05/Pepperoni-Pizza-1.jpg', 'pizza')
+ramen = Item(400, 'https://hips.hearstapps.com/hmg-prod.s3.amazonaws.com/images/190208-delish-ramen-horizontal-093-1550096715.jpg?crop=1xw:0.7496251874062968xh;center,top&resize=1200:*', 'ramen')
+chineseNoodles = Item(400, 'https://www.mamalovesfood.com/wp-content/uploads/2019/08/STIR-FRY-NOODLES-7.jpg', 'chinese noodle stirfry')
+cheeseBurger = Item(450, 'https://img.webmd.com/dtmcms/live/webmd/consumer_assets/site_images/article_thumbnails/recipes/perfect_cheeseburger_recipe/650x350_perfect_cheeseburger_recipe.jpg', 'cheeseburger')
+friedRice = Item(600, 'https://i2.wp.com/lifemadesimplebakes.com/wp-content/uploads/2018/04/Ham-Fried-Rice.jpg', 'fried rice')
+caesarSalad = Item(550, 'https://www.cookingclassy.com/wp-content/uploads/2018/06/caesar-salad-3-500x375.jpg', 'caesar salad')
+hotDog = Item(350, random.choice(['https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/8/7/0/FNM_090118-Barbecue-Hot-Dog_s4x3.jpg.rend.hgtvcom.616.462.suffix/1533665468931.jpeg', 'https://www.shoreupdate.com/wp-content/uploads/2014/09/images.gif']), 'hot dog')
+popeTart = Item(300, 'https://i.redd.it/bwhm480hlg031.png', 'pope tarts')
+fries = Item(400, 'https://www.corriecooks.com/wp-content/uploads/2018/10/Instant-Pot-French-Fries-new.jpg', 'fries')
+vanillaIC = Item(400, 'https://www.kingarthurflour.com/sites/default/files/styles/featured_image/public/recipe_legacy/4163-3-large.jpg?itok=ztpZXNRg', 'vanilla ic')
+chocolateIC = Item(400, 'https://joyfoodsunshine.com/wp-content/uploads/2020/06/homemade-chocolate-ice-cream-recipe-7.jpg', 'chocolate ic')
+mangoIC = Item(400, 'https://lovingitvegan.com/wp-content/uploads/2018/01/Vegan-Mango-Ice-Cream-8.jpg', 'mango ic')
+strawberryIC = Item(400, 'https://bakingamoment.com/wp-content/uploads/2018/06/IMG_8185-homemade-strawberry-ice-cream-square.jpg', 'strawberry ic')
+asphaltPopeTart = Item(300, 'https://cdn.discordapp.com/attachments/721501784501387264/734197839697281085/unknown.png', 'asphalt pope tarts')
+elmersPopeTart = Item(300, "https://cdn.discordapp.com/attachments/721501784501387264/734198614695608421/unknown.png", 'elmers pope tarts')          
+crustPopeTart = Item(300, 'https://cdn.discordapp.com/attachments/721501784501387264/734249647563866203/unknown.png', 'crust pope tarts')
+pistachioIC = Item(400, 'https://assets.epicurious.com/photos/5747b4a47d5155b145d8d607/2:1/w_1260%2Ch_630/shutterstock_303021722.jpg', 'pistachio ic')
+matchaIC = Item(400, 'https://www.rotinrice.com/wp-content/uploads/2011/08/MatchaIceCream-1-680x350.jpg', 'matcha ic')
+waterPopeTart = Item(300, 'https://cdn.discordapp.com/attachments/721501784501387264/734252962829959198/unknown.png', 'water pope tarts')
+spicyTofu = Item(450, "https://simpleveganblog.com/wp-content/uploads/2018/01/Korean-style-spicy-tofu-3.jpg", 'spicy tofu')
+potato = Item(430, 'https://cdn.discordapp.com/attachments/730177469768007680/768282370365063178/unknown.png', 'potato')
+floorPopeTart = Item(300, 'https://media.discordapp.net/attachments/721501784501387264/734964442646970438/unknown.png', 'floor pope tarts')
+ranchPopeTart = Item(300, 'https://cdn.discordapp.com/attachments/721501784501387264/734966826223796235/unknown.png', 'ranch pope tarts')
+spaghetti = Item(500, 'https://c.ndtvimg.com/2020-01/n7thfo2o_spaghetti_625x300_28_January_20.jpg', 'spaghetti')
+yubariMelon = Item(8000, 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/03/27/12/cantaloupe-melons.jpg?width=982&height=726', 'yubari melon')
+turkey = Item(700, 'https://tastesbetterfromscratch.com/wp-content/uploads/2017/07/Easy-No-Fuss-Thanksgiving-Turkey-14.jpg', 'turkey')
+chocolateMilk = Item(300,"https://cdn.discordapp.com/attachments/721501784501387264/785637261030850630/Screen_Shot_2020-12-07_at_2.34.37_PM.png", "chocolate milk")
+latte= Item(400, "https://cdn.discordapp.com/attachments/730177469768007680/783503766850502656/unknown.png", "latte")
 
 orders = [
     'ranch pope tarts',
@@ -1477,63 +1658,6 @@ async def speed(ctx):
        pass
     await ctx.send(f"Your food takes about {client.latency * 10000} milliseconds to deliver. Wow, that's fast!")
 
-
-            
-
-
-# Tax
-@client.event
-async def on_message(message):
-    await client.process_commands(message)
-    if os.path.exists('bal.json'):
-        with open('bal.json', 'r') as file:
-            bal = json.load(file)
-    else:
-        bal = {}
-    send = message.channel.send
-
-
-    if 'https://discord.gg/' in message.content.lower() or 'join my server' in message.content.lower():
-        if message.author.id == 468476776104853505:
-            pass
-        else:
-            await message.channel.purge(limit=1)
-            user = await client.fetch_user(468476776104853505)
-            await user.send(f'{message.author} has advertised')
-            await send('Restricted Message')
-
-        if 'tenor' in message.content.lower() or 'giphy' in message.content.lower() or '.png' in message.content.lower() or '.jpg' in message.content.lower() or '.svg' in message.content.lower():
-            try:
-                await message.channel.purge(limit=1)
-                await message.channel.send('Restricted Message')
-
-            except AttributeError:
-                pass
-
-        if message.channel.id == 771794804412645376 and message.author.id != 723036574333534241 and 'v.join' not in  message.content.lower() and 'v.leave' not in message.content.lower() and 'v.queue' not in message.content.lower() and 'v.play' not in message.content.lower():
-            await message.channel.purge(limit=1)
-
-        cc = random.randint(1, 20)
-        if cc == 5:
-            mnm = random.randint(10000, 99999)
-            nmn = random.randint(1, 100)
-            await message.channel.send(f'**{nmn} <:Spambux:812017408260702248>** have been found! Type "claim" to claim it!')
-            coinog = True
-            while coinog:
-                def check(m):
-                    return m.content == "claim" and m.channel == message.channel
-                coinpc = await client.wait_for('message', check=check)
-                await message.channel.send(f'{coinpc.author.mention} You got {nmn} <:Spambux:812017408260702248>!')
-                coinog = False
-                break
-            
-            user = str(coinpc.author.id)
-            if user in bal:
-                bal[user] += nmn
-            else:
-                bal[user] = nmn
-            with open('bal.json', 'w+') as i:
-                json.dump(bal, i)
 
 @client.command()
 @commands.cooldown(1, 86400, commands.BucketType.user)
