@@ -100,7 +100,7 @@ async def autoLottery(ctx):
             try:
                 tticketw = await client.fetch_user(tticket[random.randint(0, 999)])
                 five = str(tticketw.mention)
-                bal[str(tticket[c])] += 100000
+                bal[str(tticket[c])] += 75000
             except IndexError:
                 five = '`No One`'
             await ctx.send(f'{customer.mention}\n**This week\'s lotter winners are...**\n\n`1` {one}\n`2` {two}\n`3` {three}\n`4` {four}\n`5` {five}\nThe coins will be automatically added to your accounts. Thank you for ~~wasting~~ investing your money in the lottery! The drawing is next Sunday.\n\n*To see the lottery tickets do `!lottery` It will give you instructions on how to buy one.*\n\n-Christopher\n\n*To get pinged for these notifications, use the command `!sub`. You can undo it anytime with `!unsub`.*')
@@ -126,6 +126,8 @@ async def autoLottery(ctx):
                 json.dump(tticket, e)
             with open('tickets.json', 'w+') as i:
                 json.dump(ticket, i)
+            with open('bal.json', 'w+') as f:
+                json.dump(bal, f)
             await asyncio.sleep(604800)
     else:
         pass
