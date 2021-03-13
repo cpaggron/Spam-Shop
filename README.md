@@ -7,5 +7,7 @@ You can join the server at https://discord.gg/AkYyFy5
 
 Contributers (Not through GitHub so not shown):
 
+```
 ggpigeotto
 dolphincyber
+```
