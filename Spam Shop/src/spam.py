@@ -22,7 +22,7 @@ client.remove_command('help')
 @client.event
 async def on_ready():
     print('Bot is ready')
-    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v3.0.0"))
+    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v3.0.1"))
 
 if os.path.exists('pop.json'):
     with open('pop.json', 'r') as file:
@@ -69,39 +69,77 @@ if os.path.exists('lost.json'):
 else:
    lost = {}
 
+class welp(menus.Menu):
 
+    async def send_initial_message(self, ctx, channel):
+        embed = discord.Embed(title="Help", description=":coin: `Currency`\n:shallow_pan_of_food: `Food`\n🏓 `Role`\n<:SpamShop:768583474206081054> `Others`", color=3447003)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
+        return await channel.send(embed=embed)
+
+    @menus.button('🏛️')
+    async def on_home(self, payload):
+        embed = discord.Embed(title="Help", description=":coin: Currency\n:shallow_pan_of_food: Food\n🏓 Role\n<:SpamShop:768583474206081054> Others", color=3447003)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
+        return await self.message.edit(embed=embed)
+    
+    @menus.button('🪙')
+    async def on_one(self, payload):
+        embed = discord.Embed(title="Currency Commands", description="Here are the currency commands", color=discord.Color.blue())
+        embed.add_field(name="!dice [@user] [amount]", value="To play Dice of Doom | Contributed by IKnowWhoGokulIs#6874", inline=False)
+        embed.add_field(name="!sec [@user] [amount]", value="Get closest to 5 seconds! Gamble against your friends!", inline=False)
+        embed.add_field(name="!collect", value="To get money", inline=False)
+        embed.add_field(name="!balance", value="To see how much money you have", inline=False)
+        embed.add_field(name="!coinflip [heads/tails] [amount]", value="To gamble by flipping a coin", inline=False)
+        embed.add_field(name="!gift [@user] [amount]", value="To gift someone some money", inline=False)
+        embed.add_field(name="!daily", value="To get some money everyday", inline=False)
+        embed.add_field(name="!extra", value="An extra daily command for members only", inline=False)
+        embed.add_field(name="!tictactoe [user] [amount]", value="To play tic tac toe against another user", inline=False)
+        embed.add_field(name="!num [number]", value="To guess a number from 1 - 1000. Costs 5 <:Spambux:812017408260702248>. Can win 10000 <:Spambux:812017408260702248>.", inline=False)
+        embed.add_field(name="!lottery", value="To see the lottery tickets and avliability", inline=False)
+        embed.add_field(name="!buy [Number]", value="To buy a lottery ticket", inline=False)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
+        await self.message.edit(embed=embed)
+        
+    @menus.button('🥘')
+    async def on_two(self, payload):
+        embed = discord.Embed(title="Food Commands", description="Here are the food commands.", color=discord.Color.blue())
+        embed.add_field(name="!menu", value="To see the menu", inline=False)
+        embed.add_field(name="!order [food]", value="To order something on the menu", inline=False)
+        embed.add_field(name="!speed", value="To see how fast the service is (Ping)", inline=False)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
+        await self.message.edit(embed=embed)
+        
+    @menus.button('🏓')
+    async def on_three(self, payload):
+        embed = discord.Embed(title="Role Commands", description="Here are the role commands.", color=discord.Color.blue())
+        embed.add_field(name="!event", value="To subscribe to event pings", inline=False)
+        embed.add_field(name="!unevent", value="To unsubscribe to event pings", inline=False)
+        embed.add_field(name="!sub", value="To subscribe to announcement pings", inline=False)
+        embed.add_field(name="!unsub", value="To unsubscribe to announcement pings", inline=False)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
+        await self.message.edit(embed=embed)
+        
+    @menus.button('<:SpamShop:768583474206081054>')
+    async def on_four(self, payload):
+        embed = discord.Embed(title="Other Commands", description="Here are the other commands", color=discord.Color.blue())
+        embed = discord.Embed(title="Commands", description="Here are the commands", color=3447003)
+        embed.add_field(name="!suggest [suggestion]", value="To suggest something for the menu. PLEASE BE LOGICAL", inline=False)
+        embed.add_field(name="!leaderboard", value="To view the leaderboard", inline=False)
+        embed.add_field(name="!rate [stars] [review]", value="To review Spam Shop on Yelpp", inline=False)
+        embed.add_field(name="!rank", value="To check your level.", inline=False)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
+        await self.message.edit(embed=embed)
+
+    @menus.button('⏹️')
+    async def on_stop(self, payload):
+        self.stop()
 
 @client.command()
 async def help(ctx):
     async with ctx.typing():
        pass
-    embed = discord.Embed(title="Commands", description="Here are the commands", color=3447003)
-    embed.add_field(name="!menu", value="To see the menu", inline=False)
-    embed.add_field(name="!order [food]", value="To order something on the menu", inline=False)
-    embed.add_field(name="!suggest [suggestion]", value="To suggest something for the menu. PLEASE BE LOGICAL", inline=False)
-    embed.add_field(name="!balance", value="To see how much money you have", inline=False)
-    embed.add_field(name="!collect", value="To get money", inline=False)
-    embed.add_field(name="!coinflip [heads/tails] [amount]", value="To gamble by flipping a coin", inline=False)
-    embed.add_field(name="!gift [@user] [amount]", value="To gift someone some money", inline=False)
-    embed.add_field(name="!speed", value="To see how fast the service is (Ping)", inline=False)
-    embed.add_field(name="!sub", value="To subscribe to announcement pings", inline=False)
-    embed.add_field(name="!unsub", value="To unsubscribe to announcement pings", inline=False)
-    embed.add_field(name="!lottery", value="To see the lottery tickets and avliability", inline=False)
-    embed.add_field(name="!buy [Number]", value="To buy a lottery ticket", inline=False)
-    embed.add_field(name="!leaderboard", value="To view the leaderboard", inline=False)
-    embed.add_field(name="!dice [@user] [amount]", value="To play Dice of Doom | Contributed by IKnowWhoGokulIs#6874", inline=False)
-    embed.add_field(name="!sec [@user] [amount]", value="Get closest to 5 seconds! Gamble against your friends!", inline=False)
-    embed.add_field(name="!rate [stars] [review]", value="To review Spam Shop on Yelpp", inline=False)
-    embed.add_field(name="!daily", value="To get some money everyday", inline=False)
-    embed.add_field(name="!extra", value="An extra daily command for members only", inline=False)
-    embed.add_field(name="!dice", value="To play Dice of Doom against another player.", inline=False)
-    embed.add_field(name="!rank", value="To check your level.", inline=False)
-    embed.add_field(name="!event", value="To subscribe to event pings", inline=False)
-    embed.add_field(name="!unevent", value="To unsubscribe to event pings", inline=False)
-    embed.add_field(name="!tictactoe [user] [amount]", value="To play tic tac toe against another user", inline=False)
-    embed.add_field(name="!num [number]", value="To guess a number from 1 - 1000. Costs 5 <:Spambux:812017408260702248>. Can win 10000 <:Spambux:812017408260702248>.", inline=False)
-    embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
-    await ctx.send(embed=embed)
+    await welp().start(ctx)
+    
             
 
 @client.command()
@@ -200,9 +238,9 @@ async def num(ctx, amount: int):
     user = str(ctx.author.id)
     if user in bal and bal[user] >= 5:
         bal[user] -= 5
-        l = random.randint(1, 1000)
+        l = random.randint(1, 100000)
         if amount == l:
-            await ctx.send('HOLY!!!!!!!!!!!!!!!!! You guessed it!!!!!!!!! You got 100,000 <:Spambux:812017408260702248>!!!!!')
+            await ctx.send(f'{ctx.author.mention} HOLY!!!!!!!!!!!!!!!!! You guessed it!!!!!!!!! You got 100,000 <:Spambux:812017408260702248>!!!!!')
             bal[user] += 100000
             if user in won:
                 won[user] += 100000
@@ -670,14 +708,26 @@ async def collect(ctx):
     if ctx.channel.id in [733392111570911346, 767148961784922152, 771854973578510386, 770353347584196648, 770352409478037545, 771794804412645376]:
         await ctx.send('That command is not allowed here!')
     else:
-        coin = random.randint(1, 200)
         user = str(ctx.author.id)
         if user in bal:
+            coin = random.randint(1, 200)
             bal[user] += coin
             await ctx.send(f'{ctx.author.mention} You collected {coin} <:Spambux:812017408260702248>!')
             with open('bal.json', 'w+') as i:
                 json.dump(bal, i)
         else:
+            if bal[user] > 200000:
+                await ctx.send('You won nothing.')
+            elif bal[user] > 150000:
+               coin = random.randint(1, 5)
+            elif bal[user] > 100000:
+                coin = random.randint(1, 10)
+            elif bal[user] > 50000:
+                coin = random.randtint(1, 25)
+            elif bal[user] > 25000:
+                bal[user] = random.randint(1, 100)
+            else:
+                bal[user] = random.randint(1, 200)
             bal[user] = coin
             await ctx.send(f'{ctx.author.mention} You collected {coin} <:Spambux:812017408260702248>!')
             with open('bal.json', 'w+') as i:
@@ -695,15 +745,19 @@ async def balance(ctx, member : discord.Member=None):
     if member == None:
         user = str(ctx.author.id)
         if user in bal:
-            await ctx.send(f'{ctx.author.mention} You have {bal[user]} <:Spambux:812017408260702248>!')
+            embed = discord.Embed(title=str(ctx.author.name), description=f"{bal[user]} <:Spambux:812017408260702248>", color=discord.Color.blue())
+            await ctx.send(embed=embed)
         else:
-            await ctx.send(f'{ctx.author.mention} You have 0 <:Spambux:812017408260702248>.')
+            embed = discord.Embed(title=str(ctx.author.name), description=f"0 <:Spambux:812017408260702248>", color=discord.Color.blue())
+            await ctx.send(embed=embed)
     else:
         user = str(member.id)
         if user in bal:
-            await ctx.send(f'{member.mention} has {bal[user]} <:Spambux:812017408260702248>!')
+            embed = discord.Embed(title=str(member.name), description=f"{bal[user]} <:Spambux:812017408260702248>", color=discord.Color.blue())
+            await ctx.send(embed=embed)
         else:
-            await ctx.send(f'{member.mention} You have 0 <:Spambux:812017408260702248>.')
+            embed = discord.Embed(title=str(member.name), description=f"0 <:Spambux:812017408260702248>", color=discord.Color.blue())
+            await ctx.send(embed=embed)
 
 @client.command(aliases=['g'])
 async def gift(ctx, member : discord.Member, amount : int):
@@ -1127,7 +1181,7 @@ async def on_message(message):
         
         user = str(message.author.id)
         if message.author.id != 720856650583375873 and user in level and 'xp' in level[user] and 'final_xp' in level[user] and 'level' in level[user]:
-            level[user]["xp"] += random.choice([0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 3])
+            level[user]["xp"] += random.choice([0, 0, 2, 0, 0, 1, 0, 0, 3])
             with open("level.json", "w+") as I:
                 json.dump(level, I)
             if level[user]['xp'] >= level[user]["final_xp"]:
@@ -1136,22 +1190,26 @@ async def on_message(message):
                 level[user]['final_xp'] *= 2 
                 with open("level.json", "w+") as I:
                     json.dump(level, I)
-                if level[user]['level'] % 10 == 0:
+                if level[user]['level'] % 5 == 0:
                     await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}! You get {level[user]['level']*500} <:Spambux:812017408260702248>!")
-                    userr = message.author
-                    role = get(message.guild.roles, name=f"Level {level[user]['level']}")
-                    await userr.add_roles(role)
                     if os.path.exists('bal.json'):
                         with open('bal.json', 'r') as file:
                             bal = json.load(file)
                     else:
                         bal = {}
                     if user in bal:
-                        bal[user] += level[user]['level'] * 200
+                        bal[user] += level[user]['level'] * 500
+                        with open('bal.json', 'w+') as ua:
+                            json.dump(bal, ua)
                     else:
-                        bal[user] = level[user]['level'] * 200
-                    with open('bal.json', 'w+') as u:
-                        json.dump(bal, u)
+                        bal[user] = level[user]['level'] * 500
+                        with open('bal.json', 'w+') as ue:
+                            json.dump(bal, ue)
+                    if level[user]['level'] % 10 == 0:
+                        userr = message.author
+                        role = get(message.guild.roles, name=f"Level {level[user]['level']}")
+                    else:
+                        pass
                 else:
                     await send(f":tada: Congratulations {message.author.mention}, you advanced to level {level[user]['level']}!")
             else:
@@ -1214,70 +1272,70 @@ class MyMenu(menus.Menu):
     @menus.button('🏛️')
     async def on_home(self, payload):
         embed = discord.Embed(title="Menu", description="`1` Chinese\n`2` American\n`3` Italian\n`4` Ice Cream\n`5` Pope Tarts\n`6` Drinks\n`7` Other", color=3447003)
-        embed.set_footer(text='And of course we have spam (25 <:Spambux:812017408260702248>) too!')
+        embed.set_footer(text='And of course we have spam (250 <:Spambux:812017408260702248>) too!')
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         return await self.message.edit(embed=embed)
     
     @menus.button('1⃣')
     async def on_one(self, payload):
         embed = discord.Embed(title="Chinese/Taiwanese Food", description="Here is the list of Chinese Foods.", color=discord.Color.blue())
-        embed.add_field(name="Ramen", value="40 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Chinese Noodle Stirfry", value="40 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Fried Rice", value="60 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Spicy Tofu", value="45 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Hot Pot", value="600 <:Spambux:812017408260702248> (Do `!hotpot` for more info)", inline=False)
+        embed.add_field(name="Ramen", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Chinese Noodle Stirfry", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Fried Rice", value="600 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Spicy Tofu", value="450 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Hot Pot", value="6000 <:Spambux:812017408260702248> (Do `!hotpot` for more info)", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
         
     @menus.button('2⃣')
     async def on_two(self, payload):
         embed = discord.Embed(title="American Food", description="Here is the list of American Foods.", color=discord.Color.blue())
-        embed.add_field(name="Cheeseburger", value="45 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Caesar Salad", value="55 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Hot Dog", value="35 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Pizza", value="50 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Fries", value="40 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Cheeseburger", value="450 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Caesar Salad", value="550 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Hot Dog", value="350 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Pizza", value="500 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Fries", value="400 <:Spambux:812017408260702248>", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
         
     @menus.button('3⃣')
     async def on_three(self, payload):
         embed = discord.Embed(title="Italian Food", description="Here is the list of Italian Foods.", color=discord.Color.blue())
-        embed.add_field(name="Pizza", value="50 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Spaghetti", value="50 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Pizza", value="500 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Spaghetti", value="500 <:Spambux:812017408260702248>", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
         
     @menus.button('4⃣')
     async def on_four(self, payload):
         embed = discord.Embed(title="Ice Creams", description="Here is the list of Ice Creams. To order, write ic at the end of the order. e.g. !order mango ic", color=discord.Color.blue())
-        embed.add_field(name="Vanilla", value="40 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Chocolate", value="40 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Strawberry", value="40 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Mango", value="40 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Pistachio", value="40 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Matcha", value="40 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Vanilla", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Chocolate", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Strawberry", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Mango", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Pistachio", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Matcha", value="400 <:Spambux:812017408260702248>", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
 
     @menus.button('5⃣')
     async def on_five(self, payload):
         embed = discord.Embed(title="Pope Tarts", description="Here are the Pope Tarts, try to find the Pope on each package. Special thanks to Smiles for helping me with the images.", color=discord.Color.blue())
-        embed.add_field(name="Pope Tarts", value="30 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Asphalt Pope Tarts", value="30 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Elmer's Glue Pope Tarts", value="30 <:Spambux:812017408260702248> (order by doing !order elmers pope tarts)", inline=False)
-        embed.add_field(name="Pope Tarts Just the Crust", value="30 <:Spambux:812017408260702248> (order by doing !order crust pope tarts)", inline=False)
-        embed.add_field(name="Water Pope Tarts", value="30 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Pope Tarts Floor Food", value="30 <:Spambux:812017408260702248> (order by doing !order floor pope tarts)", inline=False)
-        embed.add_field(name="Pope Tarts Ranch Dressing", value="30 <:Spambux:812017408260702248> (order by doing !order ranch pope tarts)", inline=False)
+        embed.add_field(name="Pope Tarts", value="300 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Asphalt Pope Tarts", value="300 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Elmer's Glue Pope Tarts", value="300 <:Spambux:812017408260702248> (order by doing !order elmers pope tarts)", inline=False)
+        embed.add_field(name="Pope Tarts Just the Crust", value="300 <:Spambux:812017408260702248> (order by doing !order crust pope tarts)", inline=False)
+        embed.add_field(name="Water Pope Tarts", value="300 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Pope Tarts Floor Food", value="300 <:Spambux:812017408260702248> (order by doing !order floor pope tarts)", inline=False)
+        embed.add_field(name="Pope Tarts Ranch Dressing", value="300 <:Spambux:812017408260702248> (order by doing !order ranch pope tarts)", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
 
     @menus.button('6⃣')
     async def on_six(self, payload):
         embed = discord.Embed(title="Drinks", description="Here are the drinks", color=discord.Color.blue())
-        embed.add_field(name="Chocolate Milk", value="30 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Latte", value="40 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Chocolate Milk", value="300 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Latte", value="400 <:Spambux:812017408260702248>", inline=False)
         await self.message.edit(embed=embed)
 
 
@@ -1642,15 +1700,19 @@ async def order(ctx, *, food : str):
     else:
         await ctx.send('That command is not allowed here!')
 
-
 # Menu Suggestions
 @client.command(aliases=['s'])
+@commands.cooldown(1, 300, commands.BucketType.user)
 async def suggest(ctx, *, food):
     async with ctx.typing():
        pass
-    user = client.get_user(468476776104853505)
+    user = client.get_channel(817918302638178335)
+    await ctx.channel.purge(limit=1)
     await ctx.author.send('Thank you for your suggestion!')
-    await user.send('`This is a menu suggestion` ```' +str(food) + '```' + str(ctx.author))
+    embed = discord.Embed(title=str(ctx.author), description=food, color=discord.Color.blue())
+    msg = await user.send(embed=embed)
+    await msg.add_reaction('⬆️')
+    await msg.add_reaction('⬇️')
 
 # Speed (Ping)
 @client.command(aliases=['ping'])
