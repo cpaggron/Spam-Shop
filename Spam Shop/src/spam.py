@@ -7,6 +7,9 @@ from discord.ext import commands
 import json
 from discord.utils import get
 from discord.ext import menus
+import youtube_dl
+from youtube_search import YoutubeSearch
+import pafy
 
 
 TOKEN = 'NzIwODU2NjUwNTgzMzc1ODcz.XxfEFw.lIlq2EQW3JBtjfn0Uy8i9_V9u4I'
@@ -22,7 +25,7 @@ client.remove_command('help')
 @client.event
 async def on_ready():
     print('Bot is ready')
-    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v3.0.1"))
+    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v4.0.0"))
 
 if os.path.exists('pop.json'):
     with open('pop.json', 'r') as file:
@@ -78,7 +81,7 @@ class welp(menus.Menu):
 
     @menus.button('🏛️')
     async def on_home(self, payload):
-        embed = discord.Embed(title="Help", description=":coin: Currency\n:shallow_pan_of_food: Food\n🏓 Role\n<:SpamShop:768583474206081054> Others", color=3447003)
+        embed = discord.Embed(title="Help", description=":coin: Currency\n:shallow_pan_of_food: Food\n🏓 Role\n:musical_note: Music\n<:SpamShop:768583474206081054> Others", color=3447003)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         return await self.message.edit(embed=embed)
     
@@ -260,7 +263,6 @@ async def num(ctx, amount: int):
             json.dump(lost, l)
     else:
         await ctx.send(f'{ctx.author.mention} You can\'t afford that!')
-
 
 # Contributed by ggpigeotto -----------------------------------------------------------------------------------------
 @client.command()
@@ -723,7 +725,7 @@ async def collect(ctx):
             elif bal[user] > 100000:
                 coin = random.randint(1, 10)
             elif bal[user] > 50000:
-                coin = random.randtint(1, 25)
+                coin = random.randint(1, 25)
             elif bal[user] > 25000:
                 bal[user] = random.randint(1, 100)
             else:
@@ -794,6 +796,7 @@ async def gift(ctx, member : discord.Member, amount : int):
         await ctx.send('This command isn\'t allowed here!')
 
 @client.command(aliases=['cf'])
+@commands.cooldown(1, 120, commands.BucketType.user)
 async def coinflip(ctx, call, amount : int):
     async with ctx.typing():
        pass
@@ -804,7 +807,7 @@ async def coinflip(ctx, call, amount : int):
         bal = {}
     user = str(ctx.author.id)
     l = random.randint(1, 2)
-    if user in bal and amount <= bal[user] and amount > 0 and call in ['h', 'heads', 't', 'tails']:
+    if user in bal and amount <= bal[user] and amount > 0 and call in ['h', 'heads', 't', 'tails'] and amount <= 2000:
         if l == 1 and call in ['h', 'heads'] or l == 2 and call in ['t', 'tails']:
             bal[user] += amount
             if l == 1:
@@ -949,6 +952,8 @@ async def buy(ctx, num : int):
             cticket.append(user1)
             with open('cticket.json', 'w+') as i:
                 json.dump(cticket, i)
+            with open('ticket.json', 'w+') as i:
+                json.dump(ticket, i)
         elif ticket["lticket"] != 0 and num == 2 and user in bal and bal[user] >= 20:
             bal[user] -= 20
             ticket["lticket"] -= 1
@@ -957,6 +962,8 @@ async def buy(ctx, num : int):
             lticket.append(user1)
             with open('lticket.json', 'w+') as i:
                 json.dump(lticket, i)
+            with open('ticket.json', 'w+') as i:
+                json.dump(ticket, i)
         elif ticket["rticket"] != 0 and num == 3 and user in bal and bal[user] >= 50:
             bal[user] -= 50
             ticket["rticket"] -= 1
@@ -965,6 +972,8 @@ async def buy(ctx, num : int):
             rticket.append(user1)
             with open('rticket.json', 'w+') as i:
                 json.dump(rticket, i)
+            with open('ticket.json', 'w+') as i:
+                json.dump(ticket, i)
         elif ticket["dticket"] != 0 and num == 4 and user in bal and bal[user] >= 100:
             bal[user] -= 100
             ticket["dticket"] -= 1
@@ -973,6 +982,8 @@ async def buy(ctx, num : int):
             dticket.append(user1)
             with open('dticket.json', 'w+') as i:
                 json.dump(dticket, i)
+            with open('ticket.json', 'w+') as i:
+                json.dump(ticket, i)
         elif ticket["tticket"] != 0 and num == 5 and user in bal and bal[user] >= 500:
             bal[user] -= 500
             ticket["tticket"] -= 1
@@ -981,6 +992,8 @@ async def buy(ctx, num : int):
             tticket.append(user1)
             with open('tticket.json', 'w+') as i:
                 json.dump(tticket, i)
+            with open('ticket.json', 'w+') as i:
+                json.dump(ticket, i)
         else:
             if num > 5:
                 await ctx.send('That\'s an invalid lottery ticket')
@@ -1157,11 +1170,14 @@ async def rank(ctx, *, member: discord.Member=None):
             with open('level.json', 'w+') as po:
                 json.dump(level, po)
 
-
 # Tax
 @client.event
 async def on_message(message):
     await client.process_commands(message)
+    if message.author == client.user:
+        return
+
+
     if os.path.exists('bal.json'):
         with open('bal.json', 'r') as file:
             bal = json.load(file)
