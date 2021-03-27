@@ -5,6 +5,7 @@ import youtube_dl
 from youtube_search import YoutubeSearch
 import os
 from discord.utils import get
+import asyncio
 
 client = commands.Bot(command_prefix="s-")
 client.remove_command("help")
@@ -29,6 +30,7 @@ async def help(ctx):
     embed.add_field(name="!clearQueue", value="To clear the queue (Employees Only)", inline=False)
     await ctx.send(embed=embed)
 
+# Dictionaries and Lists
 musicList = []
 
 @client.command()
@@ -56,32 +58,52 @@ async def clearQueue(ctx):
 async def add(ctx, *, search: str):
     async with ctx.typing():
        pass
-    results = YoutubeSearch(search, max_results=1).to_dict()
-    x = results[0]
-    url = 'https://www.youtube.com' + x['url_suffix']
-    title = x['title']
-    video = pafy.new(url)
-    duration = x['duration']
-    if video.length > 600:
-        await ctx.send('This file too large! Please go under `10 minutes`.')
+    inVoice = ctx.member.voice
+
+    if inVoice is None:
+        await ctx.send("You are not listening to music!")
     else:
-        music = {}
-        music["name"] = title
-        music["url"] = url
-        music["duration"] = duration
-        musicList.append(music)
-        embed = discord.Embed(title="Song Added", description=f"[{title}]({url})", color=discord.Color.teal())
-        embed.set_footer(text=f"Added by{ctx.author.name}")
-        await ctx.send(embed=embed)
+        if search.startswith("https://"):
+            url = search
+            video = pafy.new(url)
+            if video.length > 600:
+                await ctx.send('This file too large! Please go under `10 minutes`.')
+            else:
+                music = {}
+                music["name"] = video.title
+                music["url"] = url
+                if video.duration[3] == "0":
+                    music["duration"] = video.duration[4:]
+                else:
+                    music["duration"] = video.duration[3:]
+                musicList.append(music)
+                embed = discord.Embed(title="Song Added", description=f"[{video.title}]({url})", color=discord.Color.teal())
+                embed.set_footer(text=f"Added by {ctx.author.name}")
+                await ctx.send(embed=embed)
+        else:
+            results = YoutubeSearch(search, max_results=1).to_dict()
+            x = results[0]
+            url = 'https://www.youtube.com' + x['url_suffix']
+            title = x['title']
+            video = pafy.new(url)
+            duration = x['duration']
+            if video.length > 600:
+                await ctx.send('This file too large! Please go under `10 minutes`.')
+            else:
+                music = {}
+                music["name"] = title
+                music["url"] = url
+                music["duration"] = duration
+                musicList.append(music)
+                embed = discord.Embed(title="Song Added", description=f"[{title}]({url})", color=discord.Color.teal())
+                embed.set_footer(text=f"Added by {ctx.author.name}")
+                await ctx.send(embed=embed)
 
 
 @client.command()
 async def join(ctx):
-    try:
-        channel = get(ctx.message.guild.voice_channels, name="Music")
-        await channel.connect()
-    except commands.CommandInvokeError:
-        await ctx.send('Bot is already connected to a voice channel!')
+    channel = get(ctx.message.guild.voice_channels, name="Music")
+    await channel.connect()
 
 @client.command()
 @commands.has_role("Employee")
@@ -89,17 +111,22 @@ async def leave(ctx):
     try:
         server = ctx.message.guild.voice_client
         await server.disconnect()
-    except commands.CommandInvokeError:
+    except AttributeError:
         await ctx.send('Bot is not connected to a voice channel!')
 
 @client.command()
 async def pause(ctx):
-    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-    if voice.is_playing():
-        voice.pause()
-        await ctx.message.add_reaction("⏸️")
+    inVoice = ctx.member.voice
+
+    if inVoice is None:
+        await ctx.send("You are not listening to music!")
     else:
-        await ctx.send("Currently no audio is playing.")
+        voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+        if voice.is_playing():
+            voice.pause()
+            await ctx.message.add_reaction("⏸️")
+        else:
+            await ctx.send("Currently no audio is playing.")
 
 @client.command()
 async def resume(ctx):
@@ -123,9 +150,11 @@ async def stop(ctx):
 @client.command()
 async def skip(ctx):
     try:
+        url = musicList[0]["url"]
+        voted = []
+        embed = discord.Embed(title="Vote Skip")
         voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
         voice.stop()
-        url = musicList[0]["url"]
 
         embed = discord.Embed(title="Now Playing", description=f'[{musicList[0]["name"]}]({url}) | {musicList[0]["duration"]}', color=discord.Color.teal())
         embed.set_footer(text="It might take a couple seconds to load")
@@ -187,109 +216,43 @@ async def skip(ctx):
         
 
 @client.command(pass_context=True)
-async def play(ctx, *, search=None):
-    if search is None:
-         while len(musicList) != 0:
+async def play(ctx):
 
-            url = musicList[0]["url"]
-            print(url)
-            video = pafy.new(url)
+    while len(musicList) != 0:
 
-            try:
-                os.remove("song.mp3")
-            except FileNotFoundError:
-                pass
-            voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+        current_song = [musicList[0]["title"]]
 
-            embed = discord.Embed(title="Now Playing", description=f'[{musicList[0]["name"]}]({url}) | {musicList[0]["duration"]}', color=discord.Color.teal())
-            embed.set_footer(text="It might take a couple seconds to load")
-            await ctx.send(embed=embed)
+        url = musicList[0]["url"]
+        print(url)
+        video = pafy.new(url)
 
-            musicList.pop(0)
-
-            ydl_opts = {
-                'format': 'bestaudio/best',
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }],
-            }
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([url])
-            for file in os.listdir("./"):
-                if file.endswith(".mp3"):
-                    os.rename(file, "song.mp3")
-            voice.play(discord.FFmpegPCMAudio("song.mp3"))
-            await asyncio.sleep(video.length)
-
-
-    else:
         try:
-            results = YoutubeSearch(search, max_results=1).to_dict()
-            x = results[0]
-            url = 'https://www.youtube.com' + x['url_suffix']
-            video = pafy.new(url)
-            if video.length > 600:
-                await ctx.send('This file too large! Please go under `10 minutes`.')
-            else:
-                try:
-                    os.remove("song.mp3")
-                except FileNotFoundError:
-                    pass
-                voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
+            os.remove("song.mp3")
+        except FileNotFoundError:
+            pass
+        voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
 
-                embed = discord.Embed(title="Now Playing", description=f'[{x["title"]}]({url}) | {x["duration"]}', color=discord.Color.teal())
-                embed.set_footer(text="It might take a couple seconds to load")
-                await ctx.send(embed=embed)
+        embed = discord.Embed(title="Now Playing", description=f'[{musicList[0]["name"]}]({url}) | {musicList[0]["duration"]}', color=discord.Color.teal())
+        embed.set_footer(text="It might take a couple seconds to load")
+        await ctx.send(embed=embed)
 
-                ydl_opts = {
-                    'format': 'bestaudio/best',
-                    'postprocessors': [{
-                        'key': 'FFmpegExtractAudio',
-                        'preferredcodec': 'mp3',
-                        'preferredquality': '192',
-                    }],
-                }
-                with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                    ydl.download([url])
-                for file in os.listdir("./"):
-                    if file.endswith(".mp3"):
-                        os.rename(file, "song.mp3")
-                voice.play(discord.FFmpegPCMAudio("song.mp3"))
-                await asyncio.sleep(video.length)
-                while len(musicList) != 0:
+        musicList.pop(0)
 
-                    url = musicList[0]["url"]
-
-                    os.remove("song.mp3")
-                    voice = discord.utils.get(client.voice_clients, guild=ctx.guild)
-
-                    embed = discord.Embed(title="Now Playing", description=f'[{musicList[0]["name"]}]({url}) | {musicList[0]["duration"]}', color=discord.Color.teal())
-                    embed.set_footer(text="It might take a couple seconds to load")
-                    await ctx.send(embed=embed)
-
-                    musicList.pop(0)
-
-                    ydl_opts = {
-                        'format': 'bestaudio/best',
-                        'postprocessors': [{
-                            'key': 'FFmpegExtractAudio',
-                            'preferredcodec': 'mp3',
-                            'preferredquality': '192',
-                        }],
-                    }
-                    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                        ydl.download([url])
-                    for file in os.listdir("./"):
-                        if file.endswith(".mp3"):
-                            os.rename(file, "song.mp3")
-                    voice.play(discord.FFmpegPCMAudio("song.mp3"))
-                    await asyncio.sleep(video.length)
-
-        except IndexError:
-            embed = discord.Embed(title='🚫 No results found for', description=f'"{search}"', color=15158332)
-            await ctx.send(embed=embed)
+        ydl_opts = {
+            'format': 'bestaudio/best',
+            'postprocessors': [{
+                'key': 'FFmpegExtractAudio',
+                'preferredcodec': 'mp3',
+                'preferredquality': '192',
+            }],
+        }
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        for file in os.listdir("./"):
+            if file.endswith(".mp3"):
+                os.rename(file, "song.mp3")
+        voice.play(discord.FFmpegPCMAudio("song.mp3"))
+        await asyncio.sleep(video.length)
 
 
 client.run("")
