@@ -1,18 +1,17 @@
-import os
-import random
 import discord
+from discord.ext import commands
+
 import time
 import asyncio
-from discord.ext import commands
+
+import os
 import json
+
+import random
+from discord.flags import fill_with_flags
+
 from discord.utils import get
 from discord.ext import menus
-import youtube_dl
-from youtube_search import YoutubeSearch
-import pafy
-
-
-TOKEN = 'NzIwODU2NjUwNTgzMzc1ODcz.XxfEFw.lIlq2EQW3JBtjfn0Uy8i9_V9u4I'
 
 # Some things we ought to know
 
@@ -25,7 +24,7 @@ client.remove_command('help')
 @client.event
 async def on_ready():
     print('Bot is ready')
-    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v4.0.0"))
+    await client.change_presence(activity=discord.Activity(status=discord.Status.idle, type=discord.ActivityType.watching, name=f"for orders | v4.0.1"))
 
 if os.path.exists('pop.json'):
     with open('pop.json', 'r') as file:
@@ -45,7 +44,6 @@ async def on_member_join(member):
 @client.event
 async def on_member_remove(member):
     pass
-
 
 if os.path.exists('badge.json'):
     with open('badge.json', 'r') as file:
@@ -166,6 +164,12 @@ async def unmute(ctx, member: discord.Member):
         await ctx.send(f'{member.mention} has been unmuted.')
     else:
         pass
+
+@client.command(name='ask')
+async def ask(ctx, *, question):
+    channel = client.get_channel(722257513235611669)
+    embed = discord.Embed(title=f"{ctx.author.name} is asking...", description=question)
+    await channel.send(embed=embed)
 
 
 @client.command()
@@ -1269,13 +1273,6 @@ async def clear(ctx, amount=0):
     await ctx.send('I have cleared !' +str(amount) + ' messages!!')
     await asyncio.sleep(2)
     await ctx.channel.purge(limit=1)
-
-class Item:
-    def __init__(self, price, pic, name):
-        self.price = price
-        self.pic = pic
-        self.name = name
-
         
 class MyMenu(menus.Menu):
 
@@ -1299,6 +1296,7 @@ class MyMenu(menus.Menu):
         embed.add_field(name="Chinese Noodle Stirfry", value="400 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Fried Rice", value="600 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Spicy Tofu", value="450 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Orange Chicken", value="500 <:Spambux:812017408260702248> (It's not actually Chinese but they sell it at a lot of Chinese restaurants so I put it here)", inline=False)
         embed.add_field(name="Hot Pot", value="6000 <:Spambux:812017408260702248> (Do `!hotpot` for more info)", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
@@ -1316,15 +1314,17 @@ class MyMenu(menus.Menu):
         
     @menus.button('3⃣')
     async def on_three(self, payload):
-        embed = discord.Embed(title="Italian Food", description="Here is the list of Italian Foods.", color=discord.Color.blue())
+        embed = discord.Embed(title="European/Mediterranean Food", description="Here is the list of Italian Foods.", color=discord.Color.blue())
         embed.add_field(name="Pizza", value="500 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Spaghetti", value="500 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Liver Pate", value="550 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Fish and Chips", value="300 <:Spambux:812017408260702248>", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
         
     @menus.button('4⃣')
     async def on_four(self, payload):
-        embed = discord.Embed(title="Ice Creams", description="Here is the list of Ice Creams. To order, write ic at the end of the order. e.g. !order mango ic", color=discord.Color.blue())
+        embed = discord.Embed(title="Ice Creams", description="Here is the list of Ice Creams. To order, write ice cream at the end of the order. e.g. `!order mango ice cream`", color=discord.Color.blue())
         embed.add_field(name="Vanilla", value="400 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Chocolate", value="400 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Strawberry", value="400 <:Spambux:812017408260702248>", inline=False)
@@ -1352,15 +1352,22 @@ class MyMenu(menus.Menu):
         embed = discord.Embed(title="Drinks", description="Here are the drinks", color=discord.Color.blue())
         embed.add_field(name="Chocolate Milk", value="300 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Latte", value="400 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Apple Juice", value="200 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Orange Juice", value="200 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Cranberry Juice", value="200 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Mango Juice", value="200 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Matcha Tea", value="150 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Boba Tea", value="250 <:Spambux:812017408260702248>", inline=False)
         await self.message.edit(embed=embed)
 
 
     @menus.button('7️⃣')
     async def on_seven(self, payload):
         embed = discord.Embed(title="Other", description="Here are the other foods", color=discord.Color.blue())
-        embed.add_field(name="Potato", value="43 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Potato", value="430 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Yubari Melon", value="800 <:Spambux:812017408260702248>", inline=False)
-        embed.add_field(name="Turkey", value="70 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Turkey", value="700 <:Spambux:812017408260702248>", inline=False)
+        embed.add_field(name="Bagel", value="250 <:Spambux:812017408260702248>", inline=False)
         embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
 
@@ -1386,8 +1393,28 @@ async def hotpot(ctx):
     embed.add_field(name="Variety", value="Taiwanese Meatballs\nShrimpball\nFish Ball\nTampura", inline=True)
     embed.add_field(name="Toppings", value="Spring Onions\nCilantro\nPeanut Powder\nSoy Sauce", inline=True)
     await ctx.send(embed=embed)
-    
-        
+
+
+class Item:
+    def __init__(self, price, pic, name):
+        self.price = price
+        self.pic = pic
+        self.name = name
+
+    def check(self, food):
+        if food == self.name:
+            return True
+        else:
+            return False
+
+    def deduct(self, user):
+        if self.check == True and user in bal and bal[user] >= self.price:
+            bal[user] -= self.price
+            return True
+        else:
+            return False
+
+
 spam_pics = ['https://images2.minutemediacdn.com/image/upload/c_crop,h_1576,w_2800,x_0,y_52/f_auto,q_auto,w_1100/v1554931909/shape/mentalfloss/20997-istock-471531747.jpg', 'https://cdn.vox-cdn.com/thumbor/UO1hhAGb7ea5G-MuC43l1Sxx9Rw=/0x0:2282x1712/1200x675/filters:focal(0x0:2282x1712)/cdn.vox-cdn.com/uploads/chorus_image/image/50821489/spam-wall.0.0.jpg', 'https://encrypted-tbn0.gstatic.com/images?q=tbn%3AANd9GcT1O6mvAY7DJRy5xqz4kRbfv0ji0mL2XcEneg&usqp=CAU']
 spam = Item(250, random.choice(spam_pics), 'spam')
 pizza = Item(500, 'https://www.vvsupremo.com/wp-content/uploads/2018/05/Pepperoni-Pizza-1.jpg', 'pizza')
@@ -1399,14 +1426,14 @@ caesarSalad = Item(550, 'https://www.cookingclassy.com/wp-content/uploads/2018/0
 hotDog = Item(350, random.choice(['https://food.fnr.sndimg.com/content/dam/images/food/fullset/2018/8/7/0/FNM_090118-Barbecue-Hot-Dog_s4x3.jpg.rend.hgtvcom.616.462.suffix/1533665468931.jpeg', 'https://www.shoreupdate.com/wp-content/uploads/2014/09/images.gif']), 'hot dog')
 popeTart = Item(300, 'https://i.redd.it/bwhm480hlg031.png', 'pope tarts')
 fries = Item(400, 'https://www.corriecooks.com/wp-content/uploads/2018/10/Instant-Pot-French-Fries-new.jpg', 'fries')
-vanillaIC = Item(400, 'https://www.kingarthurflour.com/sites/default/files/styles/featured_image/public/recipe_legacy/4163-3-large.jpg?itok=ztpZXNRg', 'vanilla ic')
+vanillaIC = Item(400, 'https://www.kingarthurflour.com/sites/default/files/styles/featured_image/public/recipe_legacy/4163-3-large.jpg?itok=ztpZXNRg', 'vanilla ice cream')
 chocolateIC = Item(400, 'https://joyfoodsunshine.com/wp-content/uploads/2020/06/homemade-chocolate-ice-cream-recipe-7.jpg', 'chocolate ic')
 mangoIC = Item(400, 'https://lovingitvegan.com/wp-content/uploads/2018/01/Vegan-Mango-Ice-Cream-8.jpg', 'mango ic')
-strawberryIC = Item(400, 'https://bakingamoment.com/wp-content/uploads/2018/06/IMG_8185-homemade-strawberry-ice-cream-square.jpg', 'strawberry ic')
+strawberryIC = Item(400, 'https://bakingamoment.com/wp-content/uploads/2018/06/IMG_8185-homemade-strawberry-ice-cream-square.jpg', 'strawberry ice cream')
 asphaltPopeTart = Item(300, 'https://cdn.discordapp.com/attachments/721501784501387264/734197839697281085/unknown.png', 'asphalt pope tarts')
 elmersPopeTart = Item(300, "https://cdn.discordapp.com/attachments/721501784501387264/734198614695608421/unknown.png", 'elmers pope tarts')          
 crustPopeTart = Item(300, 'https://cdn.discordapp.com/attachments/721501784501387264/734249647563866203/unknown.png', 'crust pope tarts')
-pistachioIC = Item(400, 'https://assets.epicurious.com/photos/5747b4a47d5155b145d8d607/2:1/w_1260%2Ch_630/shutterstock_303021722.jpg', 'pistachio ic')
+pistachioIC = Item(400, 'https://assets.epicurious.com/photos/5747b4a47d5155b145d8d607/2:1/w_1260%2Ch_630/shutterstock_303021722.jpg', 'pistachio ice cream')
 matchaIC = Item(400, 'https://www.rotinrice.com/wp-content/uploads/2011/08/MatchaIceCream-1-680x350.jpg', 'matcha ic')
 waterPopeTart = Item(300, 'https://cdn.discordapp.com/attachments/721501784501387264/734252962829959198/unknown.png', 'water pope tarts')
 spicyTofu = Item(450, "https://simpleveganblog.com/wp-content/uploads/2018/01/Korean-style-spicy-tofu-3.jpg", 'spicy tofu')
@@ -1417,39 +1444,58 @@ spaghetti = Item(500, 'https://c.ndtvimg.com/2020-01/n7thfo2o_spaghetti_625x300_
 yubariMelon = Item(8000, 'https://static.independent.co.uk/s3fs-public/thumbnails/image/2017/03/27/12/cantaloupe-melons.jpg?width=982&height=726', 'yubari melon')
 turkey = Item(700, 'https://tastesbetterfromscratch.com/wp-content/uploads/2017/07/Easy-No-Fuss-Thanksgiving-Turkey-14.jpg', 'turkey')
 chocolateMilk = Item(300,"https://cdn.discordapp.com/attachments/721501784501387264/785637261030850630/Screen_Shot_2020-12-07_at_2.34.37_PM.png", "chocolate milk")
-latte= Item(400, "https://cdn.discordapp.com/attachments/730177469768007680/783503766850502656/unknown.png", "latte")
+latte = Item(400, "https://cdn.discordapp.com/attachments/730177469768007680/783503766850502656/unknown.png", "latte")
+bagel = Item(250, "https://bakingamoment.com/wp-content/uploads/2020/06/IMG_8813-bagel-recipe.jpg", "bagel")
+orangeChicken = Item(500, "https://dinnerthendessert.com/wp-content/uploads/2017/08/Panda-Express-Orange-Chicken-8-.jpg", "orange chicken")
+liverPate = Item(550, "https://images.media-allrecipes.com/userphotos/6569367.jpg", "liver pate")
+appleJuice = Item(200, "http://upl.stack.com/wp-content/uploads/2018/09/11140845/Apple-Juice-STACK-654x368.jpg", "apple juice")
+orangeJuice = Item(200, "https://www.alphafoodie.com/wp-content/uploads/2020/11/Orange-Ginger-Juice-1-of-1.jpeg", "orange juice")
+cranberryJuice = Item(200, "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQD5tO04b2CcoLucrU8hdNpVO0Re5w5M662yg&usqp=CAU","cranberry juice")
+mangoJuice = Item(200, "https://www.preciouscore.com/wp-content/uploads/2018/07/mango-juice.jpg","mango juice")
+fishNchips = Item(300, "https://static.toiimg.com/thumb/59736398.cms?width=1200&height=900", "fish and chips")
+matchaTea = Item(150, "https://static.toiimg.com/photo/msid-71538393/71538393.jpg?486986","matcha tea")
+bobaTea = Item(250, "https://weelicious.com/imager/weelicious_com/uploads/Boba-Tea-2_1b74faffbe944b0675f0e20473d3ad34.jpg", "boba tea")
 
 orders = [
-    'ranch pope tarts',
-    'floor pope tarts',
-    'potato',
-    'spicy tofu',
-    'water pope tarts',
-    'matcha ic',
-    'pistachio ic',
-    'crust pope tarts',
-    'elmers pope tarts',
-    'asphalt pope tarts',
-    'strawberry ic',
-    'mango ic',
-    'chocolate ic',
-    'vanilla ic',
-    'fries',
-    'pope tarts',
-    'hot dog',
-    'caesar salad',
-    'fried rice',
-    'cheeseburger',
-    'chinese noodles stirfry',
-    'ramen',
-    'pizza',
-    'spam',
-    'spaghetti',
-    'yubari melon',
-    'turkey',
-    'hot pot',
-    "chocolate milk",
-    "latte"
+    spam,
+    pizza,
+    ramen,
+    chineseNoodles,
+    cheeseBurger,
+    friedRice,
+    caesarSalad,
+    hotDog,
+    popeTart,
+    fries,
+    vanillaIC,
+    chocolateIC,
+    mangoIC,
+    strawberryIC,
+    asphaltPopeTart,
+    elmersPopeTart,
+    crustPopeTart,
+    pistachioIC,
+    matchaIC,
+    waterPopeTart,
+    spicyTofu,
+    potato,
+    floorPopeTart,
+    ranchPopeTart,
+    spaghetti,
+    yubariMelon,
+    turkey,
+    chocolateMilk,
+    latte,
+    bagel,
+    orangeChicken,
+    liverPate,
+    appleJuice,
+    orangeJuice,
+    cranberryJuice,
+    mangoJuice,
+    fishNchips,
+    matchaTea,
+    bobaTea
     ]
         
 # order
@@ -1462,57 +1508,45 @@ async def order(ctx, *, food : str):
             bal = json.load(file)
     else:
         bal = {}
+    user = str(ctx.author.id)
     if ctx.channel.id == 767148961784922152 or ctx.channel.id == 771854973578510386 or ctx.channel.id == 704515917773537365:
-        user = str(ctx.author.id)
-        if user in leader:
-            if str(food) == pizza.name and user in bal and bal[user] >= pizza.price:
-                bal[user] -= pizza.price
-                leader[user] += pizza.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your pizza: {pizza.pic}')
+        for item in orders:
+            if item.check() == True:
+                if item.deduct(user) == True:
+                    await ctx.send(f"{ctx.author.mention} Your food is on the way!")
+                    embed = discord.Embed(title="Your Order", description=f"Here is your {item.name}: {item.pic}", color=discord.Color.blue())
+                    embed.set_image(url=item.pic)
+                    await ctx.author.send(embed=embed)
+                else:
+                    await ctx.send(f"{ctx.author.mention} You can't afford that!")
+            else:
+                in_menu = False
 
-            elif str(food) == chocolateMilk.name and user in bal and bal[user] >= chocolateMilk.price:
-                bal[user] -= chocolateMilk.price
-                leader[user] += chocolateMilk.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Chocolate Milk: {chocolateMilk.pic}')
-
-            elif str(food) == latte.name and user in bal and bal[user] >= latte.price:
-                bal[user] -= latte.price
-                leader[user] += latte.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Latte: {latte.pic}')
-
-            elif str(food) == yubariMelon.name and user in bal and bal[user] >= yubariMelon.price:
-                bal[user] -= yubariMelon.price
-                leader[user] += yubariMelon.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Yubari Melon: {yubariMelon.pic}')
-
-            elif str(food) == 'hot pot' and user in bal and bal[user] >= 600:
+        if not in_menu:
+            if food == "hot pot":
                 await ctx.send('What type of meat would you like. (Type integer) ```1 Pork\n2 Beef\n3 Mutton```')
                 meatc = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if meatc == 2:
+                if meatc.content == 2:
                     bottomRight = '<:Beef:774435020613877770>'
-                elif meatc == 1:
+                elif meatc.content == 1:
                     bottomRight = '<:Pork:774435040628703242>'
                 else:
                     bottomRight = '<:Mutton:774435031832592414>'
                 await ctx.send('What vegetable would you like? (Type integer) ```1 Napa Cabbage\n2 Raddish\n3 Parsley```')
                 vegiec: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if vegiec == 2:
+                if vegiec.content == 2:
                     topLeft = '<:Raddish:774412666276937798>'
-                elif vegiec == 1:
+                elif vegiec.content == 1:
                     topLeft = '<:NapaCabbage:774412642315403274>'
                 else:
                     topLeft = '<:Parsley:774412655171338280>'
                 await ctx.send('What variety would you like? (Type integer) ```1 Taiwanese Meatnall\n2 Shrimpball\n3 Tampura\n4 Fishball```')
                 varietyc: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if varietyc == 2:
+                if varietyc.content == 2:
                     bottomLeft = '<:ShrimpBall:774435002393952296>'
-                elif varietyc == 1:
+                elif varietyc.content == 1:
                     bottomLeft = '<:TaiwaneseMeatball:774412812620922890>'
-                elif varietyc == 3:
+                elif varietyc.content == 3:
                     bottomLeft = '<:Tampura:774434962643746836>'
                 else:
                     bottomLeft = '<:FishBall:774434988207898634>'
@@ -1525,12 +1559,12 @@ async def order(ctx, *, food : str):
                 else:
                     topRight = '<:Seaweed:774435141027758103>'
                 await ctx.send('What topping would you like? (Type integer) ```1 Spring Onion\n2 Peanut Powder\n3 Soy Sauce\n4 Cilantro```')
-                varietyc: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if varietyc == 2:
+                toppingc: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+                if toppingc.content == 2:
                     topping = '<:PeanutPowder:774808721363697704>'
-                elif varietyc == 1:
+                elif toppingc.content == 1:
                     topping = '<:SpringOnions:774808855094755378>'
-                elif varietyc == 3:
+                elif toppingc.content == 3:
                     topping = '<:SoySauce:774808846156955659>'
                 else:
                     topping = '<:Cilantro:774808838233784381>'
@@ -1538,173 +1572,9 @@ async def order(ctx, *, food : str):
                 await ctx.author.send(topping)
                 await ctx.author.send(f'{topLeft}{topRight}\n{bottomLeft}{bottomRight}')
                 await ctx.author.send('https://cdn.discordapp.com/attachments/704515917773537365/774118799473508392/HuoLu.png')
-                bal[user] -= 600
-                leader[user] += 600
-                
-
-            elif str(food) == turkey.name and user in bal and bal[user] >= turkey.price:
-                bal[user] -= turkey.price
-                leader[user] += turkey.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Turkey: {turkey.pic}')
-                
-            elif str(food) == spam.name and user in bal and bal[user] >= spam.price:
-                bal[user] -= spam.price
-                leader[user] += spam.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your spam: {spam.pic}')
-                
-            elif str(food) == ramen.name and user in bal and bal[user] >= ramen.price:
-                bal[user] -= ramen.price
-                leader[user] += ramen.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your ramen: {ramen.pic}')
-            
-            elif str(food) == chineseNoodles.name and user in bal and bal[user] >= chineseNoodles.price:
-                bal[user] -= chineseNoodles.price
-                leader[user] += chineseNoodles.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Chinese Noodles Stirfry: {chineseNoodles.pic}')
-
-            elif str(food) == cheeseBurger.name and user in bal and bal[user] >= cheeseBurger.price:
-                bal[user] -= cheeseBurger.price
-                leader[user] += cheeseBurger.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Cheeseburger: {cheeseBurger.pic}')
-
-            elif str(food) == friedRice.name and user in bal and bal[user] >= friedRice.price:
-                bal[user] -= friedRice.price
-                leader[user] += friedRice.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Fried Rice: {friedRice.pic}')
-
-            elif str(food) == caesarSalad.name and user in bal and bal[user] >= caesarSalad.price:
-                bal[user] -= caesarSalad.price
-                leader[user] += caesarSalad.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Caesar Salad: {caesarSalad.pic}')
-
-            elif str(food) == hotDog.name and user in bal and bal[user] >= hotDog.price:
-                bal[user] -= hotDog.price
-                leader[user] += hotDog.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Hot Dog: {hotDog.pic}')
-
-            elif str(food) == popeTart.name and user in bal and bal[user] >= popeTart.price:
-                bal[user] -= popeTart.price
-                leader[user] += popeTart.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pope Tarts: {popeTart.pic}')
-
-            elif str(food) == fries.name and user in bal and bal[user] >= fries.price:
-                bal[user] -= fries.price
-                leader[user] += fries.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your fries: {fries.pic}')
-
-            elif str(food) == vanillaIC.name and user in bal and bal[user] >= vanillaIC.price:
-                bal[user] -= vanillaIC.price
-                leader[user] += vanillaIC.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Vanilla Ice Cream: {vanillaIC.pic}')
-
-            elif str(food) == chocolateIC.name and user in bal and bal[user] >= chocolateIC.price:
-                bal[user] -= chocolateIC.price
-                leader[user] += chocolateIC.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Chocolate Ice Cream: {chocolateIC.pic}')
-
-            elif str(food) == mangoIC.name and user in bal and bal[user] >= mangoIC.price:
-                bal[user] -= mangoIC.price
-                leader[user] += mangoIC.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Mango Ice Cream: {mangoIC.pic}')
-
-            elif str(food) == strawberryIC.name and user in bal and bal[user] >= strawberryIC.price:
-                bal[user] -= strawberryIC.price
-                leader[user] += strawberryIC.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Strawberry Ice Cream: {strawberryIC.pic}')
-
-            elif str(food) == asphaltPopeTart.name and user in bal and bal[user] >= asphaltPopeTart.price:
-                bal[user] -= asphaltPopeTart.price
-                leader[user] += asphaltPopeTart.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pope Tarts Asphalt : {asphaltPopeTart.pic}')
-
-            elif str(food) == elmersPopeTart.name and user in bal and bal[user] >= elmersPopeTart.price:
-                bal[user] -= elmersPopeTart.price
-                leader[user] += elmersPopeTart.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pope Tarts Elmers Glue: {elmersPopeTart.pic}')
-
-            elif str(food) == crustPopeTart.name and user in bal and bal[user] >= crustPopeTart.price:
-                bal[user] -= crustPopeTart.price
-                leader[user] += crustPopeTart.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pope Tarts Just the Crust: {crustPopeTart.pic}')
-
-            elif str(food) == pistachioIC.name and user in bal and bal[user] >= pistachioIC.price:
-                bal[user] -= pistachioIC.price
-                leader[user] += pistachioIC.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pistachio Ice Cream: {pistachioIC.pic}')
-
-            elif str(food) == matchaIC.name and user in bal and bal[user] >= matchaIC.price:
-                bal[user] -= matchaIC.price
-                leader[user] += matchaIC.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Matcha Ice Cream: {matchaIC.pic}')
-
-            elif str(food) == waterPopeTart.name and user in bal and bal[user] >= waterPopeTart.price:
-                bal[user] -= waterPopeTart.price
-                leader[user] += waterPopeTart.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pope Tarts Water Flavor: {waterPopeTart.pic}')
-
-            elif str(food) == spicyTofu.name and user in bal and bal[user] >= spicyTofu.price:
-                bal[user] -= spicyTofu.price
-                leader[user] += spicyTofu.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Spicy Tofu: {spicyTofu.pic}')
-
-            elif str(food) == potato.name and user in bal and bal[user] >= potato.price:
-                bal[user] -= potato.price
-                leader[user] += potato.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Potato: {potato.pic}')
-
-            elif str(food) == floorPopeTart.name and user in bal and bal[user] >= floorPopeTart.price:
-                bal[user] -= floorPopeTart.price
-                leader[user] += floorPopeTart.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pope Tarts Floor Food: {floorPopeTart.pic}')
-
-            elif str(food) == ranchPopeTart.name and user in bal and bal[user] >= ranchPopeTart.price:
-                bal[user] -= ranchPopeTart.price
-                leader[user] += ranchPopeTart.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Pope Tarts Ranch Dressing: {ranchPopeTart.pic}')
-
-            elif str(food) == spaghetti.name and user in bal and bal[user] >= spaghetti.price:
-                bal[user] -= spaghetti.price
-                leader[user] += spaghetti.price
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(f'Here is your Spaghetti: {spaghetti.pic}')
-            
             else:
-                if str(food) not in orders:
-                    if 'food' in str(food) or 'Food' in str(food) or 'did' in str(food) or 'Did' in str(food):
-                        await ctx.send('Please specify what food you want')
-                        if bal[user] >= 10000:
-                            bal[user] -= 10000
-                        else:
-                            bal[user] = 0
-                    else:
-                        await ctx.send(f'"{food}" isn\'t on the menu!')
-                else:
-                    await ctx.send('You can\'t afford that!')
-        else:
+                await ctx.send(f'"{food}" isn\'t on the menu!')
+        if user not in leader:
             leader[user] = 0
             await ctx.send('An error occured, please try again')
         with open('bal.json', 'w+') as i:
@@ -1871,5 +1741,6 @@ async def profile(ctx, *, person: discord.Member=None):
         embed.add_field(name="Amount Lost in Gambling", value=lost[user], inline=False)
         embed.set_thumbnail(url=pfp)
         await ctx.send(embed=embed)
+
 
 client.run('')
