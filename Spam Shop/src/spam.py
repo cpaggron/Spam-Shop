@@ -1358,6 +1358,7 @@ class MyMenu(menus.Menu):
         embed.add_field(name="Mango Juice", value="200 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Matcha Tea", value="150 <:Spambux:812017408260702248>", inline=False)
         embed.add_field(name="Boba Tea", value="250 <:Spambux:812017408260702248>", inline=False)
+        embed.set_thumbnail(url="https://cdn.discordapp.com/attachments/721167603959201792/769350206143594556/spamshop.png")
         await self.message.edit(embed=embed)
 
 
@@ -1401,15 +1402,15 @@ class Item:
         self.pic = pic
         self.name = name
 
-    def check(self, food):
-        if food == self.name:
+    def check(self, thing):
+        if thing == self.name:
             return True
         else:
             return False
 
-    def deduct(self, user):
-        if self.check == True and user in bal and bal[user] >= self.price:
-            bal[user] -= self.price
+    def deduct(self, person):
+        if person in bal and bal[person] >= self.price:
+            bal[person] -= self.price
             return True
         else:
             return False
@@ -1501,6 +1502,7 @@ orders = [
 # order
 @client.command(aliases=['o'])
 async def order(ctx, *, food : str):
+    order_num = 0
     async with ctx.typing():
        pass
     if os.path.exists('bal.json'):
@@ -1511,69 +1513,74 @@ async def order(ctx, *, food : str):
     user = str(ctx.author.id)
     if ctx.channel.id == 767148961784922152 or ctx.channel.id == 771854973578510386 or ctx.channel.id == 704515917773537365:
         for item in orders:
-            if item.check() == True:
+            if item.check(food) == True:
                 if item.deduct(user) == True:
                     await ctx.send(f"{ctx.author.mention} Your food is on the way!")
-                    embed = discord.Embed(title="Your Order", description=f"Here is your {item.name}: {item.pic}", color=discord.Color.blue())
+                    if random.randint(1, 100) == 57:
+                        numbo = random.randint(1000, 5000)
+                        embed = discord.Embed(title=f"Here is your {item.name}!", description=f"Wow! You won {numbo} <:Spambux:812017408260702248>!",color=discord.Color.blue())
+                    else:
+                        embed = discord.Embed(title=f"Here is your {item.name}!", color=discord.Color.blue())
                     embed.set_image(url=item.pic)
+                    embed.set_footer(text="Thank you for buying!")
                     await ctx.author.send(embed=embed)
                 else:
                     await ctx.send(f"{ctx.author.mention} You can't afford that!")
             else:
-                in_menu = False
+                order_num += 1
 
-        if not in_menu:
-            if food == "hot pot":
-                await ctx.send('What type of meat would you like. (Type integer) ```1 Pork\n2 Beef\n3 Mutton```')
-                meatc = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if meatc.content == 2:
-                    bottomRight = '<:Beef:774435020613877770>'
-                elif meatc.content == 1:
-                    bottomRight = '<:Pork:774435040628703242>'
-                else:
-                    bottomRight = '<:Mutton:774435031832592414>'
-                await ctx.send('What vegetable would you like? (Type integer) ```1 Napa Cabbage\n2 Raddish\n3 Parsley```')
-                vegiec: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if vegiec.content == 2:
-                    topLeft = '<:Raddish:774412666276937798>'
-                elif vegiec.content == 1:
-                    topLeft = '<:NapaCabbage:774412642315403274>'
-                else:
-                    topLeft = '<:Parsley:774412655171338280>'
-                await ctx.send('What variety would you like? (Type integer) ```1 Taiwanese Meatnall\n2 Shrimpball\n3 Tampura\n4 Fishball```')
-                varietyc: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if varietyc.content == 2:
-                    bottomLeft = '<:ShrimpBall:774435002393952296>'
-                elif varietyc.content == 1:
-                    bottomLeft = '<:TaiwaneseMeatball:774412812620922890>'
-                elif varietyc.content == 3:
-                    bottomLeft = '<:Tampura:774434962643746836>'
-                else:
-                    bottomLeft = '<:FishBall:774434988207898634>'
-                await ctx.send('What vegetable would you like? (Type integer) ```1 Fish\n2 Shrimp\n3 Seaweed```')
-                seac: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if seac == 2:
-                    topRight = '<:Shrimp:774435151241281628> '
-                elif seac == 1:
-                    topRight = '<:Fish:774412690017878037>'
-                else:
-                    topRight = '<:Seaweed:774435141027758103>'
-                await ctx.send('What topping would you like? (Type integer) ```1 Spring Onion\n2 Peanut Powder\n3 Soy Sauce\n4 Cilantro```')
-                toppingc: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
-                if toppingc.content == 2:
-                    topping = '<:PeanutPowder:774808721363697704>'
-                elif toppingc.content == 1:
-                    topping = '<:SpringOnions:774808855094755378>'
-                elif toppingc.content == 3:
-                    topping = '<:SoySauce:774808846156955659>'
-                else:
-                    topping = '<:Cilantro:774808838233784381>'
-                await ctx.send(f'{ctx.author.mention} Your food is on the way!')
-                await ctx.author.send(topping)
-                await ctx.author.send(f'{topLeft}{topRight}\n{bottomLeft}{bottomRight}')
-                await ctx.author.send('https://cdn.discordapp.com/attachments/704515917773537365/774118799473508392/HuoLu.png')
+        if food == "hot pot":
+            await ctx.send('What type of meat would you like. (Type integer) ```1 Pork\n2 Beef\n3 Mutton```')
+            meatc = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+            if meatc.content == 2:
+                bottomRight = '<:Beef:774435020613877770>'
+            elif meatc.content == 1:
+                bottomRight = '<:Pork:774435040628703242>'
             else:
-                await ctx.send(f'"{food}" isn\'t on the menu!')
+                bottomRight = '<:Mutton:774435031832592414>'
+            await ctx.send('What vegetable would you like? (Type integer) ```1 Napa Cabbage\n2 Raddish\n3 Parsley```')
+            vegiec: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+            if vegiec.content == 2:
+                topLeft = '<:Raddish:774412666276937798>'
+            elif vegiec.content == 1:
+                topLeft = '<:NapaCabbage:774412642315403274>'
+            else:
+                topLeft = '<:Parsley:774412655171338280>'
+            await ctx.send('What variety would you like? (Type integer) ```1 Taiwanese Meatnall\n2 Shrimpball\n3 Tampura\n4 Fishball```')
+            varietyc: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+            if varietyc.content == 2:
+                bottomLeft = '<:ShrimpBall:774435002393952296>'
+            elif varietyc.content == 1:
+                bottomLeft = '<:TaiwaneseMeatball:774412812620922890>'
+            elif varietyc.content == 3:
+                bottomLeft = '<:Tampura:774434962643746836>'
+            else:
+                bottomLeft = '<:FishBall:774434988207898634>'
+            await ctx.send('What vegetable would you like? (Type integer) ```1 Fish\n2 Shrimp\n3 Seaweed```')
+            seac: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+            if seac == 2:
+                topRight = '<:Shrimp:774435151241281628> '
+            elif seac == 1:
+                topRight = '<:Fish:774412690017878037>'
+            else:
+                topRight = '<:Seaweed:774435141027758103>'
+            await ctx.send('What topping would you like? (Type integer) ```1 Spring Onion\n2 Peanut Powder\n3 Soy Sauce\n4 Cilantro```')
+            toppingc: int = await client.wait_for('message', check=lambda message: message.author == ctx.author)
+            if toppingc.content == 2:
+                topping = '<:PeanutPowder:774808721363697704>'
+            elif toppingc.content == 1:
+                topping = '<:SpringOnions:774808855094755378>'
+            elif toppingc.content == 3:
+                topping = '<:SoySauce:774808846156955659>'
+            else:
+                topping = '<:Cilantro:774808838233784381>'
+            await ctx.send(f'{ctx.author.mention} Your food is on the way!')
+            await ctx.author.send(topping)
+            await ctx.author.send(f'{topLeft}{topRight}\n{bottomLeft}{bottomRight}')
+            await ctx.author.send('https://cdn.discordapp.com/attachments/704515917773537365/774118799473508392/HuoLu.png')
+        elif order_num == len(orders):
+            await ctx.send(f'"{food}" isn\'t on the menu!')
+
         if user not in leader:
             leader[user] = 0
             await ctx.send('An error occured, please try again')
