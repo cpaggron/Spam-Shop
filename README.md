@@ -5,7 +5,7 @@ Sorry, some of the code is incomplete because I'm still working on them. You can
 
 [Spam Shop Server](https://discord.gg/AkYyFy5)  
 [Spambux Giveaway Invite](https://top.gg/bot/786019288326209536)
-||hi||
+
 Contributers (Not through GitHub so not shown):
 
 ```
